@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Dragon Elite NOSTR Log Bot | Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --rde-primary: #ff0041;
+            --rde-secondary: #00ffff;
+            --rde-accent: #ff00ff;
+            --rde-bg: #000;
+            --rde-bg-secondary: #0a0a0a;
+            --rde-bg-tertiary: #121212;
+            --rde-text: #ff0041;
+            --rde-text-dim: #aa002b;
+            --rde-border: #ff004133;
+            --rde-glow: #ff004188;
+            --rde-warning: #ff0;
+            --rde-error: red;
+            --rde-success: #0f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background: transparent;
+            color: var(--rde-text);
+            overflow: hidden;
+        }
+
+        /* Scanline removed - only for AETHER client, not admin panel */
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 5px var(--rde-primary), 0 0 10px var(--rde-primary); }
+            50% { box-shadow: 0 0 10px var(--rde-primary), 0 0 20px var(--rde-primary); }
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scanline removed */
+
+        #app {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            background: var(--rde-bg-secondary);
+            border: 2px solid var(--rde-primary);
+            border-radius: 8px;
+            box-shadow: 0 0 30px var(--rde-glow);
+            display: none;
+            flex-direction: column;
+            animation: fade-in 0.3s ease-out;
+        }
+
+        #app.visible {
+            display: flex;
+        }
+
+        .header {
+            padding: 20px;
+            border-bottom: 2px solid var(--rde-primary);
+            background: var(--rde-bg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: Orbitron, monospace;
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: var(--rde-primary);
+            text-shadow: 0 0 10px var(--rde-primary);
+            animation: glitch 3s infinite alternate;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--rde-success);
+            box-shadow: 0 0 10px var(--rde-success);
+            animation: pulse-glow 1s infinite;
+        }
+
+        .close-btn {
+            background: none;
+            border: 1px solid var(--rde-border);
+            color: var(--rde-text);
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            border-color: var(--rde-primary);
+            box-shadow: 0 0 10px var(--rde-glow);
+            transform: translateY(-2px);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            padding: 15px 20px;
+            border-bottom: 2px solid var(--rde-border);
+            background: var(--rde-bg-tertiary);
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 2px solid transparent;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tab:hover {
+            color: var(--rde-primary);
+        }
+
+        .tab.active {
+            color: var(--rde-primary);
+            border-bottom-color: var(--rde-primary);
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .content::-webkit-scrollbar-track {
+            background: var(--rde-bg-tertiary);
+        }
+
+        .content::-webkit-scrollbar-thumb {
+            background: var(--rde-primary);
+            border-radius: 4px;
+        }
+
+        .section {
+            display: none;
+            animation: fade-in 0.3s ease-out;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .compose-box {
+            background: var(--rde-bg);
+            border: 1px solid var(--rde-border);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .compose-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            color: var(--rde-primary);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            background: var(--rde-bg-secondary);
+            border: 1px solid var(--rde-border);
+            color: var(--rde-text);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            outline: 0;
+            border-radius: 4px;
+            transition: all 0.3s;
+            resize: vertical;
+        }
+
+        .input-field:focus {
+            border-color: var(--rde-primary);
+            box-shadow: 0 0 10px var(--rde-glow);
+        }
+
+        textarea.input-field {
+            min-height: 120px;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: 2px solid var(--rde-primary);
+            background: transparent;
+            color: var(--rde-text);
+            cursor: pointer;
+            border-radius: 4px;
+            font-family: Orbitron, monospace;
+            font-size: 14px;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: var(--rde-primary);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.5s, height 0.5s;
+            z-index: -1;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:hover {
+            color: var(--rde-bg);
+            box-shadow: 0 0 15px var(--rde-glow);
+            transform: translateY(-2px);
+        }
+
+        .log-item {
+            background: var(--rde-bg);
+            border: 1px solid var(--rde-border);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        .log-item:hover {
+            border-color: var(--rde-primary);
+            box-shadow: 0 0 10px var(--rde-glow);
+            transform: translateX(5px);
+        }
+
+        .log-time {
+            font-size: 11px;
+            color: var(--rde-text-dim);
+            margin-bottom: 8px;
+        }
+
+        .log-content {
+            font-size: 13px;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--rde-bg);
+            border: 1px solid var(--rde-border);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: var(--rde-primary);
+            box-shadow: 0 0 15px var(--rde-glow);
+            transform: translateY(-5px);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--rde-primary);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--rde-text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .relay-item {
+            background: var(--rde-bg);
+            border: 1px solid var(--rde-border);
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .relay-url {
+            font-size: 12px;
+            flex: 1;
+        }
+
+        .relay-status-badge {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+        }
+
+        .status-message {
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 3px solid;
+            border-radius: 4px;
+            animation: fade-in 0.3s;
+        }
+
+        .status-success {
+            background: rgba(0, 255, 0, 0.1);
+            border-color: var(--rde-success);
+            color: var(--rde-success);
+        }
+
+        .status-error {
+            background: rgba(255, 0, 0, 0.1);
+            border-color: var(--rde-error);
+            color: var(--rde-error);
+        }
+
+        .bot-info {
+            background: var(--rde-bg);
+            border: 1px solid var(--rde-border);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .bot-info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--rde-border);
+            font-size: 12px;
+        }
+
+        .bot-info-item:last-child {
+            border-bottom: none;
+        }
+
+        .bot-info-label {
+            color: var(--rde-text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .bot-info-value {
+            color: var(--rde-primary);
+            word-break: break-all;
+            text-align: right;
+            max-width: 60%;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <div>
+                <div class="logo">.:: RDE NOSTR ::.</div>
+                <div style="font-size:10px;color:var(--rde-secondary);margin-top:5px">LOG BOT | ADMIN PANEL</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:20px">
+                <div class="status">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusText">CONNECTED</span>
+                </div>
+                <button class="close-btn" onclick="closePanel()">[ CLOSE ]</button>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('post')">POST LOG</div>
+            <div class="tab" onclick="switchTab('logs')">VIEW LOGS</div>
+            <div class="tab" onclick="switchTab('stats')">STATISTICS</div>
+            <div class="tab" onclick="switchTab('bot')">BOT INFO</div>
+        </div>
+
+        <div class="content">
+            <!-- POST LOG SECTION -->
+            <div class="section active" id="post-section">
+                <div id="message-container"></div>
+                
+                <div class="compose-box">
+                    <div class="compose-title">[ POST NEW LOG ]</div>
+                    <textarea id="postContent" class="input-field" placeholder="Enter log content..."></textarea>
+                    <button class="btn" onclick="sendLog()">[ SEND TO NOSTR ⚡777 ]</button>
+                </div>
+            </div>
+
+            <!-- LOGS SECTION -->
+            <div class="section" id="logs-section">
+                <div class="compose-title" style="margin-bottom:15px">[ RECENT LOGS ]</div>
+                <div id="logs-container">
+                    <div style="text-align:center;padding:40px;color:var(--rde-text-dim)">
+                        Loading logs...
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATS SECTION -->
+            <div class="section" id="stats-section">
+                <div class="compose-title" style="margin-bottom:15px">[ STATISTICS ]</div>
+                <div class="stat-grid" id="stats-grid">
+                    <!-- Stats will be populated here -->
+                </div>
+            </div>
+
+            <!-- BOT INFO SECTION -->
+            <div class="section" id="bot-section">
+                <div class="compose-title" style="margin-bottom:15px">[ BOT INFORMATION ]</div>
+                <div class="bot-info" id="bot-info">
+                    <!-- Bot info will be populated here -->
+                </div>
+                
+                <div class="compose-title" style="margin:30px 0 15px">[ RELAY STATUS ]</div>
+                <div id="relay-container">
+                    <!-- Relays will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
