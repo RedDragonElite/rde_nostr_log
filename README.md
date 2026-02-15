@@ -19,6 +19,12 @@
 
 ## 📸 Screenshots
 
+<img width="1920" height="1080" alt="113Fwdaawdok" src="https://github.com/user-attachments/assets/94980ee4-c8c5-4550-863b-be9c39d192c9" />
+<img width="1920" height="1080" alt="113Fwdwddaawdok" src="https://github.com/user-attachments/assets/03f9b6fd-2a66-469f-906a-e0ad6bca84b9" />
+<img width="1920" height="1080" alt="113Fwdafefeawdok" src="https://github.com/user-attachments/assets/d4734fb0-c096-41f1-bf95-ab27b143f8ea" />
+<img width="1920" height="1080" alt="113Fwdaawffswedok" src="https://github.com/user-attachments/assets/054d4bd7-4a2e-43a5-81b9-4db4d7062be6" />
+
+
 <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@serpentsbyte/video/7606598159921319190" data-video-id="7606598159921319190" style="max-width: 605px;min-width: 325px;" > <section> <a target="_blank" title="@serpentsbyte" href="https://www.tiktok.com/@serpentsbyte?refer=embed">@serpentsbyte</a> <p>🖥️🔥 FIRST EVER FiveM Nostr Bot just dropped… and it’s INSANE 🤯💀 Watch this cyberpunk AETHER panel glitch in real-time:   ✅ Live server logs scrolling   ✅ 5&#47;5 relays connected   ✅ Decentralized &#38; uncensorable   ✅ Discord webhooks? DEAD. 💥 🔥 Why this changes everything? - Decentralized &#38; Permanent: Logs live forever on the Nostr network – no single point of failure - Uncensorable: No bans, no downtime, no company can delete your logs - Cryptographically signed: Every event is verifiable and tamper-proof - AETHER Cyberpunk UI: Glitch effects, scanlines, neon pulse – the most beautiful admin panel in FiveM - Production ready: 5 relays, batch processing, triple admin verification, zero spam No more centralized bullshit. Logs live FOREVER on Nostr – signed, permanent, free. 🐉⚡️ Built by Red Dragon Elite – AAA quality, 100% FREE.   Download → GitHub → RedDragonElite   Follow the bot live: npub1606155780c677d11baba2a52c3a8d568eae40b54116aea3e325fe4ecc801f5e9 The future of FiveM logging is HERE. 🚀 #FiveM #Nostr #Cyberpunk #GTARP #fyp</p> <a target="_blank" title="♬ Originalton  - △ ᛋᛅᚱᛒᛅᚾᛏᛋ ᛒᛁᛏᛅ ▽" href="https://www.tiktok.com/music/Originalton-△-ᛋᛅᚱᛒᛅᚾᛏᛋ-ᛒᛁᛏᛅ-▽-7606598123947510550?refer=embed">♬ Originalton  - △ ᛋᛅᚱᛒᛅᚾᛏᛋ ᛒᛁᛏᛅ ▽</a> </section> </blockquote>
 
 > *Coming soon - your screenshots here!*
