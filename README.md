@@ -11,7 +11,7 @@
 
 *Built by [Red Dragon Elite](https://rd-elite.com) | Free Forever | Uncensorable by Design*
 
-[📖 Documentation](#-installation) • [🚀 Quick Start](#-quick-start) • [💬 Discord](https://discord.gg/rde) • [🌐 Website](https://rd-elite.com)
+[📖 Documentation](#-installation) • [🚀 Quick Start](#-quick-start) • [💬 Nostr](nostr:npub1wr4e24zn6zzjqx8kvnelfvktf0pu6l2gx4gvw06zead2eqyn23sq9tsd94) • [🌐 Website](https://rd-elite.com)
 
 </div>
 
@@ -867,7 +867,6 @@ Please do! See [Contributing](#-contributing) section.
 
 *REJECT MODERN MEDIOCRITY. EMBRACE RDE SUPERIORITY.*
 
-[![Discord](https://img.shields.io/badge/Discord-Join-7289DA?style=for-the-badge&logo=discord)](https://discord.gg/rde)
 [![Website](https://img.shields.io/badge/Website-Visit-red?style=for-the-badge&logo=google-chrome)](https://rd-elite.com)
 [![Nostr](https://img.shields.io/badge/Nostr-Follow-purple?style=for-the-badge&logo=rss)](nostr:npub1wr4e24zn6zzjqx8kvnelfvktf0pu6l2gx4gvw06zead2eqyn23sq9tsd94)
 
