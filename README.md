@@ -1,5 +1,5 @@
-# 🐉 RDE Nostr Log Bot
-
+# 🐉 RDE FiveM Nostr Log Bot
+     #RedDragonElite #FiveM #Nostr #web3 #log #nostress
 <div align="center">
 
 ![Version](https://img.shields.io/badge/version-1.0.0-red?style=for-the-badge)
@@ -10,6 +10,13 @@
 **The World's First Truly Decentralized FiveM Logging System**
 
 *Built by [Red Dragon Elite](https://rd-elite.com) | Free Forever | Uncensorable by Design*
+
+This is a server log script for FiveM, which is used to log any action that are being made in the server
+using Nostr. You can use any available Android, iOS or Web based Nostr App to view your Server logs.
+
+All you need to know about NOSTR: [LEARN MORE](https://nostr.com/)
+My Favorite Android Client: [Get Amethyst](https://github.com/vitorpamplona/amethyst)
+And this awesome one: [Get 0xChat](https://github.com/0xchat-app) 
 
 [📖 Documentation](#-installation) • [🚀 Quick Start](#-quick-start) • [💬 Nostr](https://primal.net/p/nprofile1qqs8p6u423fappfqrrmxful5kt95hs7d04yr25x88apv7k4vszf4gcqynchct) • [🌐 Website](https://rd-elite.com)
 
