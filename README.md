@@ -1,7 +1,7 @@
 # 🐉 RDE FiveM Nostr Log Bot
+![dl_1771623247168](https://github.com/user-attachments/assets/d54350b8-b3e8-4ddf-829f-81842e7953bd)
      #RedDragonElite #FiveM #Nostr #web3 #log #nostress
 <div align="center">
-![dl_1771623247168](https://github.com/user-attachments/assets/d54350b8-b3e8-4ddf-829f-81842e7953bd)
 
 ![Version](https://img.shields.io/badge/version-1.0.0-red?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-RDE%20Black%20Flag-black?style=for-the-badge)
