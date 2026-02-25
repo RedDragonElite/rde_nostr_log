@@ -10,6 +10,8 @@
 
 **The World's First Truly Decentralized FiveM Logging System**
 
+SEE LIVE LOGS: [OPEN RDE | LOG BROWSER](https://rd-elite.com/Files/NOSTR/Terminal/)
+
 *Built by [Red Dragon Elite](https://rd-elite.com) | Free Forever | Uncensorable by Design*
 
 This is a server log script for FiveM, which is used to log any action that are being made in the server
