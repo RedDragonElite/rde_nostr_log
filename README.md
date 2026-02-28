@@ -29,6 +29,7 @@ And this awesome one: [Get 0xChat](https://github.com/0xchat-app)
 
 ## 📸 Screenshots
 
+<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/e064573d-2fa4-4a69-b1b4-934f19f58314" />
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/2b7c5823-6f27-4950-adce-b633c4ada745" />
 <img width="1021" height="593" alt="image" src="https://github.com/user-attachments/assets/3a8050ef-5985-4ad8-ad5c-fa8f4db024d4" />
 <img width="1920" height="1080" alt="113Fwdaawdok" src="https://github.com/user-attachments/assets/94980ee4-c8c5-4550-863b-be9c39d192c9" />
