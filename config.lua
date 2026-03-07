@@ -249,7 +249,7 @@ Config.Performance = {
     rateLimit = {
         enabled = true,
         maxPerMinute = 30,
-        burstAllowed = 5
+        burstAllowed = 3
     },
     
     -- 💾 Log Storage (optional - for UI history)
@@ -295,7 +295,7 @@ Config.Security = {
     allowedRelayDomains = {
         'damus.io',
         'nos.lol',
-        'snort.social',
+        -- 'snort.social', -- UNSTABLE
         'nostr.wine',
         'primal.net'
     }

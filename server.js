@@ -17,14 +17,14 @@ const {
 const Config = {
     Nostr: {
         // ⚠️ Leave empty to auto-generate, or add hex private key (64 chars)
-        privateKey: '', // Your key here!
+        privateKey: 'nsec184cwe5ulatckw4etpqla9h3yqxd4vehauszymz27je0hcvcetupqdnp657', // Your key here!
         
         // 🔥 STABLE RELAYS - Known to work well
         relays: [
-            'wss://nos.lol',
+            // 'wss://nos.lol', -- HIGH RATE LIMITS
             'wss://relay.damus.io',
             'wss://relay.primal.net',
-            'wss://relay.snort.social'
+            // 'wss://relay.snort.social' -- UNSTABLE or BANNED xD NO CLUE
         ],
         
         reconnectDelay: 5000,
@@ -517,8 +517,15 @@ on('playerJoining', (source) => {
 
 on('playerDropped', (reason) => {
     const source = global.source;
+    
+    // ✅ FIX: Player may already be removed from server when this fires
     const name = GetPlayerName(source);
-    const identifier = GetPlayerIdentifierByType(source, 'steam');
+    if (!name) {
+        log(`⚠️ playerDropped: Player ${source} already removed, skipping log`, 'warning');
+        return;
+    }
+    
+    const identifier = GetPlayerIdentifierByType(source, 'steam') || 'unknown';
     
     logPlayerEvent('player_disconnected', {
         name: name,
