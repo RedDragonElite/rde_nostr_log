@@ -874,7 +874,7 @@ Please do! See [Contributing](#-contributing) section.
 ---
 
 <div align="center">
-<img width="1080" height="1080" alt="AIRetouch_20260305_225134663" src="https://github.com/user-attachments/assets/aa838a3f-6bdd-47d3-bd99-6987f90211e2" />
+<img width="128" height="128" alt="AIRetouch_20260305_225134663" src="https://github.com/user-attachments/assets/aa838a3f-6bdd-47d3-bd99-6987f90211e2" />
 
 **Made with 🔥 by [Red Dragon Elite](https://rd-elite.com)**
 
