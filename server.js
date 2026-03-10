@@ -17,7 +17,7 @@ const {
 const Config = {
     Nostr: {
         // ⚠️ Leave empty to auto-generate, or add hex private key (64 chars)
-        privateKey: 'nsec184cwe5ulatckw4etpqla9h3yqxd4vehauszymz27je0hcvcetupqdnp657', // Your key here!
+        privateKey: '', // Your key here!
         
         // 🔥 STABLE RELAYS - Known to work well
         relays: [
