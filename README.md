@@ -32,7 +32,7 @@ And this awesome one: [Get 0xChat](https://github.com/0xchat-app)
 <img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/e064573d-2fa4-4a69-b1b4-934f19f58314" />
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/2b7c5823-6f27-4950-adce-b633c4ada745" />
 <img width="1021" height="593" alt="image" src="https://github.com/user-attachments/assets/3a8050ef-5985-4ad8-ad5c-fa8f4db024d4" />
-<img width="1920" height="1080" alt="113Fwdaawdok" src="https://github.com/user-attachments/assets/94980ee4-c8c5-4550-863b-be9c39d192c9" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/84f0094c-28f1-49b6-a214-fe79cf93f877" />
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/95c4e0cc-58ce-4b25-8640-7075b1fd7f4b" />
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/ca9a7c7a-d349-4fb6-b2a7-2fc0050ef077" />
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/27aee96b-b0db-4700-a734-79f7a8b7f894" />
