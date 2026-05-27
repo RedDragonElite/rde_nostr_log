@@ -1,510 +1,547 @@
-# 📡 NOSTR INTEGRATION GUIDE
+# 🐉 RDE FiveM Nostr Log Bot
+![dl_1771623247168](https://github.com/user-attachments/assets/d54350b8-b3e8-4ddf-829f-81842e7953bd)
+     #RedDragonElite #FiveM #Nostr #web3 #log #nostress
+<div align="center">
 
-## 🌍 Was ist Nostr?
+![Version](https://img.shields.io/badge/version-1.1.1-red?style=for-the-badge)
+![License](https://img.shields.io/badge/license-RDE%20Black%20Flag-black?style=for-the-badge)
+![FiveM](https://img.shields.io/badge/FiveM-Compatible-blue?style=for-the-badge)
+![Nostr](https://img.shields.io/badge/Nostr-Decentralized-purple?style=for-the-badge)
 
-**Nostr** (Notes and Other Stuff Transmitted by Relays) ist ein **dezentrales Kommunikationsprotokoll** - eine Alternative zu Twitter/X, aber:
+**The World's First Truly Decentralized FiveM Logging System**
 
-- ✅ **Unzensierbar** - Niemand kann dich sperren
-- ✅ **Dezentral** - Keine zentrale Instanz
-- ✅ **Offen** - Jeder kann teilnehmen
-- ✅ **Permanent** - Logs bleiben für immer
-- ✅ **Kryptographisch sicher** - Alles ist signiert
+SEE LIVE LOGS: [OPEN RDE | LOG BROWSER](https://rd-elite.com/Files/NOSTR/Terminal/)
 
-**Perfekt für Server-Logs!** 🚀
+*Built by [Red Dragon Elite](https://rd-elite.com) | Free Forever | Uncensorable by Design*
 
----
+This is a server log script for FiveM, which is used to log any actions taking place on the server
+using Nostr. You can use any available Android, iOS or Web based Nostr App to view your Server logs.
 
-## 🔑 Keys verstehen
+All you need to know about NOSTR: [LEARN MORE](https://nostr.com/)
+My Favorite Android Client: [Get Amethyst](https://github.com/vitorpamplona/amethyst)
+And this awesome one: [Get 0xChat](https://github.com/0xchat-app) 
 
-### Private Key (nsec)
-- **Dein Geheimnis** - NIEMALS teilen!
-- Format: `nsec1...` (59 Zeichen)
-- Wird zum Signieren von Events verwendet
-- **Wenn verloren = Identity verloren!**
+[📖 Documentation](#-full-installation-guide) • [🚀 Quick Start](#-quick-start) • [💬 Nostr](https://primal.net/p/nprofile1qqs8p6u423fappfqrrmxful5kt95hs7d04yr25x88apv7k4vszf4gcqynchct) • [🌐 Website](https://rd-elite.com)
 
-### Public Key (npub)
-- **Deine öffentliche ID** - Safe zum Teilen
-- Format: `npub1...` (63 Zeichen)
-- Damit finden andere deine Logs
-- Wird aus dem Private Key generiert
-
-**Analogie:**
-- Private Key = Dein Passwort
-- Public Key = Dein Benutzername
+</div>
 
 ---
 
-## 📡 Relays verstehen
+## 📸 Screenshots
 
-### Was sind Relays?
+<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/e064573d-2fa4-4a69-b1b4-934f19f58314" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/2b7c5823-6f27-4950-adce-b633c4ada745" />
+<img width="1021" height="593" alt="image" src="https://github.com/user-attachments/assets/3a8050ef-5985-4ad8-ad5c-fa8f4db024d4" />
+<img width="1920" height="1080" alt="113Fwdaawdok" src="https://github.com/user-attachments/assets/94980ee4-c8c5-4550-863b-be9c39d192c9" />
+<img width="1920" height="1080" alt="113Fwdwddaawdok" src="https://github.com/user-attachments/assets/03f9b6fd-2a66-469f-906a-e0ad6bca84b9" />
+<img width="1920" height="1080" alt="113Fwdafefeawdok" src="https://github.com/user-attachments/assets/d4734fb0-c096-41f1-bf95-ab27b143f8ea" />
+<img width="1920" height="1080" alt="113Fwdaawffswedok" src="https://github.com/user-attachments/assets/054d4bd7-4a2e-43a5-81b9-4db4d7062be6" />
+<img width="638" height="957" alt="image" src="https://github.com/user-attachments/assets/aefb2ff2-80c2-4321-b8d1-5291b26335b8" />
 
-Relays sind **Server**, die Nostr-Events speichern und weiterleiten. Sie sind wie:
-- Discord-Server, aber dezentral
-- Twitter-Server, aber jeder kann einen betreiben
-- Email-Server, aber für Social Media
 
-### Wie funktioniert's?
+> 📱 **[Watch the reveal on TikTok](https://www.tiktok.com/@serpentsbyte/video/7606598159921319190)** — First ever FiveM Nostr Bot drop
+
+<blockquote class="tiktok-embed" cite="https://www.tiktok.com/@serpentsbyte/video/7606598159921319190" data-video-id="7606598159921319190" style="max-width: 605px;min-width: 325px;" > <section> <a target="_blank" title="@serpentsbyte" href="https://www.tiktok.com/@serpentsbyte?refer=embed">@serpentsbyte</a> <p>🖥️🔥 FIRST EVER FiveM Nostr Bot just dropped… and it's INSANE 🤯💀 Watch this cyberpunk AETHER panel glitch in real-time:   ✅ Live server logs scrolling   ✅ 5/5 relays connected   ✅ Decentralized &#38; uncensorable   ✅ Discord webhooks? DEAD. 💥 🔥 Why this changes everything? - Decentralized &#38; Permanent: Logs live forever on the Nostr network – no single point of failure - Uncensorable: No bans, no downtime, no company can delete your logs - Cryptographically signed: Every event is verifiable and tamper-proof - AETHER Cyberpunk UI: Glitch effects, scanlines, neon pulse – the most beautiful admin panel in FiveM - Production ready: 5 relays, batch processing, triple admin verification, zero spam No more centralized bullshit. Logs live FOREVER on Nostr – signed, permanent, free. 🐉⚡️ Built by Red Dragon Elite – AAA quality, 100% FREE.   Download → GitHub → RedDragonElite   Follow the bot live: npub1606155780c677d11baba2a52c3a8d568eae40b54116aea3e325fe4ecc801f5e9 The future of FiveM logging is HERE. 🚀 #FiveM #Nostr #Cyberpunk #GTARP #fyp</p> <a target="_blank" title="♬ Originalton  - △ ᛋᛅᚱᛒᛅᚾᛏᛋ ᛒᛁᛏᛅ ▽" href="https://www.tiktok.com/music/Originalton-△-ᛋᛅᚱᛒᛅᚾᛏᛋ-ᛒᛁᛏᛅ-▽-7606598123947510550?refer=embed">♬ Originalton  - △ ᛋᛅᚱᛒᛅᚾᛏᛋ ᛒᛁᛏᛅ ▽</a> </section> </blockquote>
+
+---
+
+## 🔥 Why This Bot Changes Everything
+
+Traditional FiveM logging is **broken by design**:
+
+| ❌ Discord Webhooks | ✅ RDE Nostr Bot |
+|---------------------|------------------|
+| **Rate limited** (30 requests/min) | **Unlimited** posts |
+| **Censored** by Discord TOS | **Uncensorable** - no central authority |
+| **Deleted** when server banned | **Permanent** - distributed across relays |
+| **Privacy nightmare** - Discord owns your data | **True privacy** - you control your keys |
+| **Single point of failure** - Discord goes down, you're blind | **Decentralized** - 100+ global relays |
+| **Paywalled** - "Premium bots" cost money | **100% Free Forever** |
+
+### 🎯 Key Features
+
+- 🔓 **Truly Open Source** - No backdoors, no telemetry, no BS
+- 🌍 **Decentralized** - Your logs live on Nostr's global relay network
+- 🔐 **Cryptographically Signed** - Every event provably authentic (BIP-340)
+- ⚡ **Lightning Fast** - WebSocket connections, sub-second latency
+- 🎨 **Stunning UI** - AETHER-style admin panel with live statistics
+- 🛡️ **Triple Admin Verification** - ACE permissions + Steam ID + ox_core
+- 📊 **Real-time Stats** - Monitor relay health, success rates, uptime
+- 🔧 **Developer Friendly** - Clean exports, extensive documentation
+- 🌐 **Multi-language** - EN/DE support, easily extendable
+
+---
+
+## 📦 Changelog
+
+### v1.1.1 — Stability & Compatibility Update
+> *"No more promise rejections, no more OFFLINE panel, no more crashes on disconnect."*
+
+**🔴 Critical Fixes**
+- **`UnhandledPromiseRejection` on player disconnect — ELIMINATED**
+  - Root cause: `nostr-tools` v2.x changed its entire API (breaking change from v1.x)
+  - `getEventHash()` + `getSignature()` no longer exist in v2.x
+  - Replaced with `finalizeEvent(template, Uint8Array)` — hash + sign in one safe call
+  - All internal crypto errors are now caught and logged, never propagate as unhandled rejections
+- **Bot crashed on startup with `hex string expected, got object`**
+  - `nip19.decode()` returns `Uint8Array` in v2.x, not a hex string
+  - Private key is now stored internally as `Uint8Array` throughout, only converted to hex for display
+  - `package.json` pinned to `nostr-tools ^2.0.0` to prevent version mismatch
+- **NUI Panel showed STATUS: OFFLINE / 0/0 relays forever**
+  - Root cause: `getStatus` NUI callback was calling `TriggerServerEvent` then immediately `cb('ok')`
+  - NUI received `"ok"` as status object → `botStatus.initialized = undefined` → OFFLINE
+  - Fixed: Client-side state cache (`cachedStatus`, `cachedLogs`) — NUI callbacks return real data instantly
+  - Server events now update cache AND push to NUI simultaneously
+
+**🟡 Stability Fixes**
+- **`playerDropped`: `GetPlayerName()` null-guard** — player may already be removed when event fires
+- **`playerConnecting`/`playerJoining`**: `source` captured synchronously before any async gap
+- **Pre-init event queue**: Events that arrive before relays connect are queued (max 20) and flushed automatically once the first relay connects — no more silent drops or "Bot not initialized yet" spam
+- **`postEvent` export guard**: External scripts (e.g. rde_aipilot) passing `undefined` as player object no longer crash the bot
+- **`postLog` export guard**: `tags` parameter validated as Array — `null`/`undefined` from external callers handled gracefully
+- **`logPlayerEvent()` null-guard**: Entire `player` object validated before property access
+- **`NostrRelay.close()`**: Sets `_intentionalClose = true` to prevent reconnect loop on resource stop
+- **Pending events leak fixed**: Timeout and error handler both always resolve pending relay promises
+- **Startup post**: Now queued via pre-init queue instead of hardcoded 8s `setTimeout`
+- **`pcall` wrapper in `player_activity.lua`**: JS export errors never crash the Lua thread
+
+**🟢 Improvements**
+- Relay-level error and close events resolve all pending Promises immediately
+- `connectToRelays()` skips duplicate relay objects (no double-connect on restart)
+- Auto-Refresh in NUI every 10s uses cached data, not repeated server round-trips
+- NUI relay list now shows ONLINE/OFFLINE status and real relay names (PRIMAL, DAMUS, NOS, SNORT) instead of "LOCAL"
+- DevMode logs show queued pre-init event count
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+**FiveM Server Requirements:**
+- Node.js 16+ (comes with FiveM server)
+- Yarn package manager (included with FiveM)
+- Outbound port 443 access (for WebSocket connections)
+
+### Installation (5 Minutes)
+
+```bash
+# 1. Clone the repository
+cd resources
+git clone https://github.com/RedDragonElite/rde_nostr_log.git
+
+# 2. Install dependencies (using yarn, not npm!)
+cd rde_nostr_log
+yarn install
+
+# 3. Add to server.cfg
+ensure rde_nostr_log
+
+# 4. Restart server or start resource
+start rde_nostr_log
+
+# 5. Done! Check console for your npub
+```
+
+> ⚠️ **Important:** FiveM servers use **Yarn**, not npm. Installation happens automatically when you start the resource. Make sure `node_modules/nostr-tools` is version **2.x**.
+
+---
+
+## 📚 Full Installation Guide
+
+### Step 1: Get Your Nostr Identity
+
+**Option A: Auto-Generate (Easiest)**
+1. Leave `privateKey = ''` empty in `server.js`
+2. Start the bot — it generates a key automatically
+3. Check console for: `📝 nsec: nsec1...`
+4. Copy that nsec into `server.js`
+5. Restart — now you have a permanent identity!
+
+**Option B: Generate Offline (Most Secure)**
+1. Visit [Nostr Key Generator](https://nostr-keygen.pages.dev/) (works offline!)
+2. Save your **private key (nsec)** somewhere safe
+3. Paste it into `server.js`: `privateKey: 'nsec1...'`
+4. **Never share your private key!**
+
+### Step 2: Configure Admin Access
+
+Edit `server.js`:
+
+```javascript
+AdminSystem: {
+    acePermission: 'rde.nostr.admin',
+    steamIds: [
+        'steam:110000101605859', // ⚠️ REPLACE WITH YOUR STEAM ID
+    ],
+}
+```
+
+**Get your Steam ID:** Join your server and check the console — look for `steam:110000xxxxxxxxxx`
+
+**Optional ACE Permissions:**
+```cfg
+# server.cfg
+add_ace group.admin rde.nostr.admin allow
+```
+
+### Step 3: Choose Your Relays
+
+```javascript
+relays: [
+    'wss://nos.lol',             // Fast, stable
+    'wss://relay.damus.io',      // Largest iOS client relay
+    'wss://relay.primal.net',    // High uptime
+    'wss://relay.snort.social'   // Good redundancy
+]
+```
+
+Browse [Nostr.watch](https://nostr.watch/) for more relay stats.
+
+### Step 4: Viewing Your Logs
+
+**Web Clients:**
+- [Primal](https://primal.net/) — Modern, fast
+- [nostr.band](https://nostr.band/) — Search by npub
+- [RDE Log Browser](https://rd-elite.com/Files/NOSTR/Terminal/) — Built for server logs
+
+**Mobile:**
+- [Amethyst](https://github.com/vitorpamplona/amethyst) (Android)
+- [Damus](https://damus.io/) (iOS)
+
+---
+
+## ✅ Post-Installation Verification
+
+### Expected Console Output
 
 ```
-Dein Bot → Event signieren → An Relays senden
-                                    ↓
-                            Relays speichern
-                                    ↓
-                            Clients können lesen
+[RDE-NOSTR] 🐉 RED DRAGON ELITE | NOSTR LOG BOT v1.1.1
+[RDE-NOSTR] ⚡ FIVEM COMPATIBLE - Using nostr-tools
+[RDE-NOSTR] 🤖 Initializing Nostr Bot...
+[RDE-NOSTR] ✅ Bot Identity loaded
+[RDE-NOSTR]    npub:   npub1abc123...
+[RDE-NOSTR]    pubkey: abc123def...
+[RDE-NOSTR] 📡 Connecting to 4 relays...
+[RDE-NOSTR] ✅ Connected to relay: wss://nos.lol
+[RDE-NOSTR] ✅ Connected to relay: wss://relay.damus.io
+[RDE-NOSTR] ⚡ Flushing 1 queued pre-init events...
+[RDE-NOSTR] ✅ Relay ACCEPTED event abc123... on wss://nos.lol
+[RDE-NOSTR] ✅ Published to 4/4 relays (0 failed) in 251ms
 ```
 
-### Empfohlene Relays
+### Test Manual Post
 
-**Große, stabile Relays:**
+> Default keybind is **F9** — configurable in `config.lua`
+
+1. Press **F9** (or your configured keybind)
+2. Admin panel opens
+3. Go to "POST LOG" tab
+4. Type: `🐉 Test post from RDE Nostr Bot!`
+5. Click "SEND TO NOSTR ⚡777"
+6. Console shows `✅ Published to 4/4 relays (0 failed)`
+
+---
+
+## 🎮 Usage
+
+### Admin Panel (F9)
+
+- 📤 **Post Log** — Manual posts with custom tags
+- 📋 **View Logs** — Recent events with timestamps
+- 📊 **Statistics** — Total posts, relay health, uptime
+- 🤖 **Bot Info** — Public key, relay status, connection info
+
+### Automatic Logging
+
+The bot automatically logs:
+- ✅ Player connecting / joining / leaving
+- 🔌 Disconnect reasons
+- 👑 Admin actions
+- 🌦️ Weather changes (via rde_weather integration)
+- ✈️ AI Pilot events (via rde_aipilot integration)
+
+### Exports (For Developers)
+
 ```lua
-'wss://relay.damus.io'     -- Am populärsten
-'wss://nos.lol'            -- Sehr schnell
-'wss://relay.snort.social' -- Feature-rich
-'wss://nostr.wine'         -- Premium
-'wss://relay.primal.net'   -- Gute Performance
+-- Post a custom log from any resource
+exports['rde_nostr_log']:postLog('🎯 Custom event happened', {
+    {'event_type', 'custom'},
+    {'player', identifier}
+})
+
+-- Get bot's public key
+local npub = exports['rde_nostr_log']:getBotNpub()
 ```
 
-**Spezial-Relays:**
+---
+
+## 🔧 Configuration
+
+### Essential Settings (`server.js`)
+
+```javascript
+Config.Nostr = {
+    privateKey: 'nsec1...',      // Your bot's private key (nsec or hex)
+    relays: [...],               // List of relay URLs
+    batchEnabled: false,         // Keep false for realtime logging
+    publishTimeout: 15000,       // Relay response timeout in ms
+}
+
+Config.AdminSystem = {
+    steamIds: ['steam:123...'],  // Your Steam ID
+    acePermission: 'rde.nostr.admin',
+}
+```
+
+### Optional Tweaks (`config.lua`)
+
 ```lua
-'wss://nostr.mom'          -- Community-driven
-'wss://relay.nostr.band'   -- Mit Suchfunktion
-'wss://relay.orangepill.dev' -- Bitcoin-fokussiert
+Config.UI.keybind = 'F9'              -- Admin panel hotkey
+Config.DefaultLanguage = 'en'         -- 'en' or 'de'
+Config.Performance.maxStoredLogs = 100
 ```
 
-### Eigenen Relay hosten?
-
-**Ja, kannst du!** 
-- [strfry](https://github.com/hoytech/strfry) - C++, ultra-fast
-- [nostr-rs-relay](https://git.sr.ht/~gheartsfield/nostr-rs-relay) - Rust, performant
-- [relay](https://github.com/fiatjaf/relay) - Go, einfach
-
-**Vorteile:**
-- Volle Kontrolle über deine Logs
-- Garantierte Verfügbarkeit
-- Keine Limits
-
-**Nachteil:**
-- Weniger Reichweite (nur du & deine Follower sehen's)
-
 ---
 
-## 🎯 Nostr Clients
+## 🐛 Troubleshooting
 
-### Desktop
-- **[Damus](https://damus.io)** (macOS) - Schönste UI
-- **[Gossip](https://github.com/mikedilger/gossip)** - Feature-rich
-- **[Snort](https://snort.social)** - Web-based, schnell
+### "hex string expected, got object" on startup
 
-### Mobile
-- **Damus** (iOS) - Top-Tier
-- **[Amethyst](https://github.com/vitorpamplona/amethyst)** (Android) - Bester Android Client
-- **[Primal](https://primal.net)** (iOS/Android) - Einfach & schön
-
-### Web
-- **[Snort.social](https://snort.social)** - PWA, sehr schnell
-- **[Coracle](https://coracle.social)** - Feature-packed
-- **[Nostrudel](https://nostrudel.ninja)** - Experimentell
-
-### Empfehlung für Server-Logs:
-**[nostr.band](https://nostr.band)** - Perfekt zum Durchsuchen & Filtern!
-
----
-
-## 🔍 Deinen Bot finden
-
-### Via npub
-1. Bot starten
-2. npub aus Console kopieren (z.B. `npub1abc...xyz`)
-3. In Nostr Client suchen
-4. Folgen!
-
-### Via Relay
-Wenn du `wss://relay.damus.io` nutzt:
-1. Gehe zu https://nostr.band
-2. Suche deine npub
-3. Siehst alle Posts!
-
-### Via Tags
-Filtern nach Tags:
-- `#RedDragonElite` - Alle RDE Posts
-- `#FiveM` - Alle FiveM Posts
-- `#ServerLog` - Alle Server-Logs
-
----
-
-## 🎨 Event-Struktur
-
-### Nostr Event Format
-
+You have a version mismatch. Make sure `package.json` has:
 ```json
 {
-  "id": "event_hash",
-  "pubkey": "dein_public_key",
-  "created_at": 1234567890,
-  "kind": 1,
-  "tags": [
-    ["t", "RedDragonElite"],
-    ["t", "FiveM"],
-    ["event", "player_join"]
-  ],
-  "content": "🔌 PlayerName (steam:123) connected...",
-  "sig": "signature"
-}
-```
-
-### Event Kinds
-
-Der Bot nutzt:
-- **Kind 1** - Text Notes (Standard für Logs)
-- **Kind 30078** - Application-specific data (optional)
-
-Andere Kinds:
-- Kind 0 = Metadata (Profile)
-- Kind 3 = Contacts (Following)
-- Kind 7 = Reactions (Likes)
-
----
-
-## 🏷️ Tagging Strategy
-
-### Standard Tags
-```lua
-{
-    {'t', 'RedDragonElite'},  -- Hashtag
-    {'t', 'FiveM'},
-    {'server', 'My Server Name'},
-    {'event', 'player_join'}
-}
-```
-
-### Custom Tags
-```lua
-{
-    {'player', 'steam:123456'},
-    {'amount', '10000'},
-    {'transaction', 'purchase'}
-}
-```
-
-### Filtering Tags
-Clients können nach Tags filtern:
-```
-Show only #player_death events
-Show only events from this server
-```
-
----
-
-## 🔐 Sicherheit & Privacy
-
-### Was ist öffentlich?
-
-**Alles!** Nostr ist ein **öffentliches Protokoll**.
-
-- ✅ Jeder kann deine Logs lesen
-- ✅ Jeder kann deinen npub folgen
-- ✅ Events sind permanent
-
-**Deshalb:**
-- ❌ KEINE Passwörter loggen
-- ❌ KEINE privaten Daten
-- ❌ KEINE Credit Card Numbers
-- ✅ Use Sanitization!
-
-### Sanitization
-
-Der Bot hat **automatische Sanitization**:
-
-```lua
-Config.Security = {
-    sanitizeLogs = true,
-    sanitizePatterns = {
-        '%d%d%d%d%-%d%d%d%d%-%d%d%d%d%-%d%d%d%d', -- CC
-        'password[%s:=]+%S+',
-        'token[%s:=]+%S+'
-    }
-}
-```
-
-**Vorher:**
-```
-Player paid with card 1234-5678-9012-3456
-```
-
-**Nachher:**
-```
-Player paid with card [REDACTED]
-```
-
----
-
-## 🚀 Advanced Features
-
-### NIP-04: Encrypted Direct Messages
-
-**Möglich** - Private Logs nur für Admins:
-
-```lua
--- Future feature
-exports['rde_nostr_log']:postEncryptedLog(
-    content,
-    recipientPubkey
-)
-```
-
-### NIP-05: Verification
-
-**Empfohlen** - Verifiziere deinen Bot:
-
-1. Domain besitzen
-2. `.well-known/nostr.json` erstellen:
-```json
-{
-  "names": {
-    "myserver": "your_pubkey_hex"
+  "dependencies": {
+    "nostr-tools": "^2.0.0",
+    "ws": "8.14.2"
   }
 }
 ```
-3. In Bot-Profil eintragen: `myserver@yourdomain.com`
+Then delete `node_modules` and run `yarn install` again.
 
-**Vorteil:** Checkmark ✓ bei Bot-Name
+### "Bot not initialized yet" in console on startup
 
-### NIP-23: Long-form Content
+This is normal in v1.0.x. **Fixed in v1.1.1** — events are now queued and sent once relays connect.
 
-**Für Reports** - Lange Berichte statt kurzer Logs:
+### Panel shows STATUS: OFFLINE / 0/0 relays
 
-```lua
--- Kind 30023 - Artikel
-exports['rde_nostr_log']:postArticle(
-    title,
-    content,
-    summary
-)
+**Fixed in v1.1.1.** If you still see this after updating, clear your browser cache or do a hard refresh (Ctrl+F5) on the NUI.
+
+### "UnhandledPromiseRejection" on player disconnect
+
+**Fixed in v1.1.1.** The root cause was the nostr-tools v2.x API change. Update to v1.1.1.
+
+### No relays connect
+
+- Check outbound port 443 is open on your server
+- Try different relays (some hosting providers block certain domains)
+- Check `[yarn]` errors in console — `node_modules` may not be installed
+
+### Admin panel won't open
+
+1. Check your Steam ID in `server.js`
+2. Try `/nostrpanel` command
+3. Check F8 console for errors
+4. Make sure `ox_lib` is installed
+
+### "Relay REJECTED: invalid signature"
+
+Delete `node_modules` and `yarn.lock`, then run `yarn install`. Wrong nostr-tools version installed.
+
+---
+
+## 📊 Performance Tips
+
+### Batch Processing (High-Traffic Servers)
+
+```javascript
+Config.Nostr.batchEnabled = true;
+Config.Nostr.batchInterval = 5000;
+Config.Nostr.batchMaxSize = 10;
 ```
 
-### NIP-65: Relay Lists
+### Relay Selection
 
-**Auto-Discovery** - Clients finden deine Relays:
+**3-5 relays = sweet spot.** More relays = slower posts with diminishing returns.
 
-```lua
--- Kind 10002
-exports['rde_nostr_log']:publishRelayList()
+Pick relays close to your server geographically — check [nostr.watch](https://nostr.watch/) for latency stats.
+
+---
+
+## 🔐 Security Best Practices
+
+```javascript
+// Good — environment variable
+privateKey: process.env.NOSTR_PRIVATE_KEY || ''
+
+// Bad — hardcoded in repo
+privateKey: 'nsec123abc456...'
+```
+
+- ⚠️ Never share your nsec/private key
+- ✅ Back it up physically
+- ❌ Don't commit keys to GitHub
+- 🔒 Add `server.js` to `.gitignore` if it contains your key
+
+---
+
+## 🔧 Technical Details
+
+### Stack
+
+- **Server-Side:** Node.js 16+ · `nostr-tools` v2.x · `ws` v8.14.2 · BIP-340 Schnorr signatures
+- **Client-Side:** Lua · HTML5/CSS3/JavaScript · AETHER-inspired UI
+
+### How It Works
+
+1. **Initialization** — Loads or generates nsec, derives npub, connects to relays via WebSocket
+2. **Event Creation** — `finalizeEvent(template, privKeyBytes)` handles SHA-256 hash + Schnorr signature in one call
+3. **Publishing** — Event broadcast to all relays simultaneously, each responds with OK or REJECTED
+4. **Pre-Init Queue** — Events arriving before relay connection are queued and flushed automatically
+
+### Relay Protocol (NIP-01)
+
+```javascript
+// Client → Relay
+["EVENT", { kind: 1, pubkey, created_at, tags, content, id, sig }]
+
+// Relay → Client (success)
+["OK", "event_id", true, ""]
+
+// Relay → Client (rejected)
+["OK", "event_id", false, "invalid: bad signature"]
 ```
 
 ---
 
-## 📊 Analytics & Monitoring
+## 🤝 Contributing
 
-### Relay Monitoring
+1. **Fork** the repository
+2. **Create** a feature branch: `git checkout -b feature/amazing-feature`
+3. **Commit** your changes: `git commit -m 'Add amazing feature'`
+4. **Push** to branch: `git push origin feature/amazing-feature`
+5. **Open** a Pull Request
 
-**Prüfen ob Relays funktionieren:**
-
-```bash
-# Via curl
-curl -H "Accept: application/nostr+json" \
-     wss://relay.damus.io
-
-# Via websocat
-websocat wss://relay.damus.io
-```
-
-### Event Stats
-
-**Wie viele sehen deine Logs?**
-
-- [nostr.band](https://nostr.band) - Zeigt Event-Reichweite
-- [stats.nostr.band](https://stats.nostr.band) - Relay-Statistiken
-
-### Follower Tracking
-
-**Wer folgt deinem Bot?**
-
-```lua
--- Future feature
-local followers = exports['rde_nostr_log']:getFollowers()
-print('Bot has ' .. #followers .. ' followers!')
-```
+**Guidelines:**
+- ✅ Keep the RDE header intact
+- ✅ Follow existing code style
+- ✅ Test on a live server before PR
+- ✅ Update README if adding features
+- ❌ No telemetry or paid features
+- ❌ Don't change the license
 
 ---
 
-## 🎮 Integration Examples
+## 📜 License
 
-### Discord Bridge
+**RDE Black Flag Source License v6.66**
 
-**Logs auch nach Discord senden:**
-
-```lua
-RegisterNetEvent('rde_nostr:logPosted', function(content)
-    -- Send to Discord webhook
-    PerformHttpRequest('https://discord.com/api/webhooks/...', 
-        function() end, 
-        'POST', 
-        json.encode({content = content})
-    )
-end)
+```
+###################################################################################
+#                                                                                 #
+#      .:: RED DRAGON ELITE (RDE)  -  BLACK FLAG SOURCE LICENSE v6.66 ::.         #
+#                                                                                 #
+#   PROJECT:    RDE_NOSTR_LOG (ADVANCED FIVEM NOSTR BOT, DECENTRALIZED LOGGING)   #
+#   ARCHITECT:  .:: RDE ⧌ Shin [△ ᛋᛅᚱᛒᛅᚾᛏᛋ ᛒᛁᛏᛅ ▽] ::. | https://rd-elite.com     #
+#   ORIGIN:     https://github.com/RedDragonElite                                 #
+#                                                                                 #
+#   WARNING: THIS CODE IS PROTECTED BY DIGITAL VOODOO AND PURE HATRED FOR LEAKERS #
+#                                                                                 #
+#   [ THE RULES OF THE GAME ]                                                     #
+#                                                                                 #
+#   1. // THE "FUCK GREED" PROTOCOL (FREE USE)                                    #
+#      You are free to use, edit, and abuse this code on your server.             #
+#      Learn from it. Break it. Fix it. That is the hacker way.                   #
+#      Cost: 0.00€. If you paid for this, you got scammed by a rat.               #
+#                                                                                 #
+#   2. // THE TEBEX KILL SWITCH (COMMERCIAL SUICIDE)                              #
+#      Listen closely, you parasites:                                             #
+#      If I find this script on Tebex, Patreon, or in a paid "Premium Pack":      #
+#      > I will DMCA your store into oblivion.                                    #
+#      > I will publicly shame your community.                                    #
+#      > I hope your server lag spikes to 9999ms every time you blink.            #
+#      SELLING FREE WORK IS THEFT. AND I AM THE JUDGE.                            #
+#                                                                                 #
+#   3. // THE CREDIT OATH                                                         #
+#      Keep this header. If you remove my name, you admit you have no skill.      #
+#      You can add "Edited by [YourName]", but never erase the original creator.  #
+#      Don't be a skid. Respect the architecture.                                 #
+#                                                                                 #
+#   4. // THE CURSE OF THE COPY-PASTE                                             #
+#      This code uses advanced logic and cryptographic signatures.                #
+#      If you just copy-paste without reading, it WILL break.                     #
+#      Don't come crying to my DMs. RTFM or learn to code.                        #
+#                                                                                 #
+#   --------------------------------------------------------------------------    #
+#   "We build the future on the graves of paid resources."                        #
+#   "REJECT MODERN MEDIOCRITY. EMBRACE RDE SUPERIORITY."                          #
+#   --------------------------------------------------------------------------    #
+###################################################################################
 ```
 
-### Web Dashboard
-
-**Read-only Nostr Dashboard:**
-
-```html
-<script src="https://unpkg.com/nostr-tools"></script>
-<script>
-const pool = new SimplePool();
-const pubkey = 'your_bot_pubkey';
-
-pool.subscribe(
-    ['wss://relay.damus.io'],
-    [{kinds: [1], authors: [pubkey]}],
-    {
-        onevent(event) {
-            console.log('New log:', event.content);
-            displayLog(event);
-        }
-    }
-);
-</script>
-```
-
-### Telegram Bot
-
-**Forward logs to Telegram:**
-
-```lua
-RegisterNetEvent('rde_nostr:logPosted', function(content)
-    PerformHttpRequest(
-        'https://api.telegram.org/bot<TOKEN>/sendMessage',
-        function() end,
-        'POST',
-        json.encode({
-            chat_id = 'YOUR_CHAT_ID',
-            text = content
-        })
-    )
-end)
-```
+**TL;DR:** ✅ Free forever · ✅ Keep the header · ❌ Don't sell it · ❌ Don't be a skid
 
 ---
 
-## 🔧 Troubleshooting
+## 🌐 Community & Support
 
-### Logs erscheinen nicht
+### Official Links
 
-**Check:**
-1. Bot connected to relays? → Console output
-2. Private key valid? → Check format
-3. Events signed? → `verifyEvent()` result
-4. Relay online? → Test via curl
+- 🤖 [TheBot](https://primal.net/p/nprofile1qqs0tu49u5ranxetlaes9ehrc2gharlurlx4up33anjqw5at242p8lq32028f)
+- 🌍 [Website](https://rd-elite.com)
+- 🐙 [GitHub](https://github.com/RedDragonElite)
+- 🔵 [Nostr](nostr:npub1c0dk5uwgxlqrakhdzht2qjauakew036qrxxmu94ll4hx2hqlzhjs2p7c8j)
 
-### Performance Issues
+### Creator
 
-**Solutions:**
-1. Enable batching
-2. Reduce relay count
-3. Increase batch interval
-4. Use local relay
+**Shin | Red Dragon Elite**
+- Nostr: `npub1wr4e24zn6zzjqx8kvnelfvktf0pu6l2gx4gvw06zead2eqyn23sq9tsd94`
+- Web: [rd-elite.com](https://rd-elite.com)
 
-### Too many logs
+### Get Help
 
-**Solutions:**
-1. Disable verbose events (vehicle_spawn)
-2. Increase batch size
-3. Use higher log levels
-4. Filter before posting
+1. 📖 Read the docs first
+2. 🔍 Check Troubleshooting section
+3. 🐛 [Open an Issue](https://github.com/RedDragonElite/rde_nostr_log/issues)
+
+**Include in bug reports:** error messages from console, your hosting provider, nostr-tools version.
 
 ---
 
-## 💡 Best Practices
+## 💡 FAQ
 
-### 1. Use Batching
-```lua
-Config.Nostr.batchEnabled = true
-Config.Nostr.batchInterval = 5000
-```
+**Is this really free?** Yes. 100% free, forever. No premium version, no upsells.
 
-### 2. Meaningful Tags
-```lua
-{
-    {'event', 'player_death'},   -- Good
-    {'xyz', 'abc'}                -- Bad
-}
-```
+**Can Discord ban my bot?** No. This doesn't use Discord at all.
 
-### 3. Consistent Format
-```lua
--- Good
-'🔌 PlayerName connected'
-'💀 PlayerName died'
-'💰 PlayerName earned $100'
+**What Node.js version do I need?** Node 16+ (comes with FiveM — you don't need to install anything).
 
--- Bad
-'Player connected'
-'Death occurred'
-'Money: 100'
-```
+**nostr-tools v1 or v2?** v2.x — `package.json` in v1.1.1 is pinned to `^2.0.0`.
 
-### 4. Security First
-```lua
--- Never log:
-'password: hunter2'
-'credit_card: 1234-5678'
-'private_key: abc123'
+**Can I use this with ESX/QBCore/ox_core?** Yes — framework-agnostic.
 
--- Always sanitize!
-```
+**Can I delete old logs?** No. Nostr events are permanent. Only post what you're okay being public forever.
 
-### 5. Descriptive Content
-```lua
--- Good
-'🚗 PlayerName spawned Adder [ABC123]'
-
--- Bad
-'Vehicle spawned'
-```
+**Multiple servers?** Yes — each server can have its own npub or share one.
 
 ---
 
-## 🌟 Future Possibilities
+## 🏆 Credits
 
-- **NIP-28** - Public Chat (Live Server Chat on Nostr)
-- **NIP-65** - Relay List Metadata
-- **NIP-89** - App Handlers (Click log → Open in FiveM)
-- **NIP-94** - File Metadata (Attach screenshots to logs)
-- **Custom Clients** - Dedicated FiveM log viewers
+**Built by:** [Red Dragon Elite](https://rd-elite.com)  
+**Creator:** Shin | [Nostr](nostr:npub1wr4e24zn6zzjqx8kvnelfvktf0pu6l2gx4gvw06zead2eqyn23sq9tsd94)  
+**Special Thanks:** Nostr protocol devs · [@noble/secp256k1](https://github.com/paulmillr/noble-secp256k1) by Paul Miller · The FiveM community
 
 ---
 
-## 📚 Resources
+<div align="center">
+<img width="128" height="128" alt="AIRetouch_20260305_225134663" src="https://github.com/user-attachments/assets/aa838a3f-6bdd-47d3-bd99-6987f90211e2" />
 
-### Learn Nostr
-- [nostr.how](https://nostr.how) - Best intro guide
-- [nostr.info](https://nostr.info) - Protocol docs
-- [NIPs](https://github.com/nostr-protocol/nips) - Protocol specs
+**Made with 🔥 by [Red Dragon Elite](https://rd-elite.com)**
 
-### Development
-- [nostr-tools](https://github.com/nbd-wtf/nostr-tools) - JS library
-- [rust-nostr](https://github.com/rust-nostr/nostr) - Rust library
-- [awesome-nostr](https://github.com/aljazceru/awesome-nostr) - All things Nostr
+*REJECT MODERN MEDIOCRITY. EMBRACE RDE SUPERIORITY.*
 
-### Community
-- [Discord](https://discord.gg/nostr)
-- [Telegram](https://t.me/nostr_protocol)
-- Twitter: #nostr
+[![Website](https://img.shields.io/badge/Website-Visit-red?style=for-the-badge&logo=google-chrome)](https://rd-elite.com)
+[![Nostr](https://img.shields.io/badge/Nostr-Follow-purple?style=for-the-badge&logo=rss)](nostr:npub1wr4e24zn6zzjqx8kvnelfvktf0pu6l2gx4gvw06zead2eqyn23sq9tsd94)
 
----
-
-## 🎯 Final Words
-
-Nostr ist die **Zukunft der zensurresistenten Kommunikation**.
-
-Deine Server-Logs sind jetzt:
-- ✅ Permanent
-- ✅ Unzensierbar
-- ✅ Dezentral
-- ✅ Öffentlich zugänglich
-- ✅ Kryptographisch verifiziert
-
-**Willkommen in der Zukunft!** 🚀
-
-⚡ Red Dragon Elite | 777 Hz ∆ ⚡
+</div>

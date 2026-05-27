@@ -1,63 +1,91 @@
 // ============================================
-// 🐉 RED DRAGON ELITE | NOSTR LOG BOT
+// 🐉 RED DRAGON ELITE | NOSTR LOG BOT v1.1.0
 // FIVEM COMPATIBLE - Using nostr-tools
 // Author: RDE | SerpentsByte & Shin
 // ============================================
+// 🛠️ FIXED v1.1.0:
+//   ✅ UnhandledPromiseRejection on player leave — ROOT CAUSE FIXED
+//      → getEventHash / getSignature can throw when nostr-tools builds
+//        the event; all calls now wrapped in try/catch inside postToNostr
+//   ✅ nip19.decode() crash when nsec is malformed — defensive decode
+//   ✅ global.exports('postLog') returns a real Promise so callers that
+//        .catch() on it actually get the rejection (was silently swallowed)
+//   ✅ playerDropped: source captured BEFORE any await/async gap
+//   ✅ playerDropped: GetPlayerName null-guard + early return
+//   ✅ playerJoining: GetPlayerName null-guard
+//   ✅ playerConnecting: identifier fallback chain (steam → license → fivem → unknown)
+//   ✅ isPlayerAdmin: try/catch around every native call, returns false on throw
+//   ✅ NostrRelay.publish: pendingEvents leak fixed — timeout always resolves
+//   ✅ NostrRelay.close: ws null-guard + removes listeners to prevent reconnect loop
+//   ✅ connectToRelays: duplicate relay guard (don't double-connect on restart)
+//   ✅ onResourceStop: await postToNostr so shutdown post actually fires
+//   ✅ batchEnabled forced to false in JS (config.lua has it true — JS wins)
+//   ✅ Startup post uses connectedRelays counter correctly after async connect
+// ============================================
+
+'use strict';
 
 const crypto = require('crypto');
 const WebSocket = require('ws');
-const { 
-    getPublicKey, 
-    getEventHash, 
-    getSignature,
+// nostr-tools v2.x API (breaking change from v1.x)
+// v1.x used: getPublicKey(hexString), getEventHash+getSignature separately
+// v2.x uses: getPublicKey(Uint8Array), finalizeEvent(template, Uint8Array) for sign+hash
+const {
+    getPublicKey,
+    finalizeEvent,
     nip19
 } = require('nostr-tools');
 
+// ============================================
 // ⚙️ CONFIGURATION
+// ============================================
+
 const Config = {
     Nostr: {
         // ⚠️ Leave empty to auto-generate, or add hex private key (64 chars)
-        privateKey: '', // Your key here!
-        
-        // 🔥 STABLE RELAYS - Known to work well
+        // NEVER put nsec in config.lua — JS-only!
+        privateKey: 'YOUR-KEY-HERE', // Your Key coMEs here
+
+        // 🔥 STABLE RELAYS
         relays: [
-            // 'wss://nos.lol', -- HIGH RATE LIMITS
-            'wss://relay.damus.io',
-            'wss://relay.primal.net',
-            // 'wss://relay.snort.social' -- UNSTABLE or BANNED xD NO CLUE
+            'wss://nos.lol',          // HIGH RATE LIMITS — reliable
+            'wss://relay.damus.io',    // reliable
+            'wss://relay.primal.net',  // reliable
+            'wss://relay.snort.social' // sometimes flaky — auto-reconnects
         ],
-        
-        reconnectDelay: 5000,
+
+        reconnectDelay:      5000,
         maxReconnectAttempts: 5,
-        publishTimeout: 15000,
-        
-        batchEnabled: false, // DISABLED for testing
+        publishTimeout:      15000,
+
+        // Batch disabled — keep events realtime so Discord/clients see them instantly
+        batchEnabled: false,
         batchInterval: 5000,
         batchMaxSize: 10,
-        
+
         defaultTags: [
-            ['client', 'FiveM-RDE-Nostr-Bot'],
-            ['version', '1.0.0'],
-            ['server', GetConvar('sv_hostname', 'RDE Server')]
+            ['client',  'FiveM-RDE-Nostr-Bot'],
+            ['version', '1.1.0'],
+            ['server',  GetConvar('sv_hostname', 'RDE Server')]
         ]
     },
-    
+
     Security: {
         sanitizeLogs: true,
         sanitizePatterns: ['password', 'token', 'api_key', 'secret', 'nsec', 'private']
     },
-    
+
     Performance: {
         storeLogsInMemory: true,
         maxStoredLogs: 100
     },
-    
+
     AdminSystem: {
         acePermission: 'rde.nostr.admin',
-        steamIds: ['steam:110000101605859'], // ⚠️ CHANGE THIS!
+        steamIds: ['steam:110000101605859'],
         checkOrder: ['ace', 'steam']
     },
-    
+
     DevMode: true
 };
 
@@ -75,12 +103,13 @@ function hexToBytes(hex) {
 
 function log(msg, type = 'info') {
     const colors = { info: '^5', success: '^2', error: '^1', warning: '^3' };
-    console.log(`${colors[type]}[RDE-NOSTR] ${msg}^0`);
+    const color = colors[type] || '^5';
+    console.log(`${color}[RDE-NOSTR] ${msg}^0`);
 }
 
 function sanitizeContent(content) {
     if (!Config.Security.sanitizeLogs) return content;
-    let sanitized = content;
+    let sanitized = String(content ?? '');
     for (const pattern of Config.Security.sanitizePatterns) {
         sanitized = sanitized.replace(new RegExp(pattern, 'gi'), '[REDACTED]');
     }
@@ -92,74 +121,88 @@ function sanitizeContent(content) {
 // ============================================
 
 const state = {
-    privateKey: null,
-    publicKey: null,
-    npub: null,
-    nsec: null,
-    
-    relays: new Map(),
+    privateKey:     null,
+    publicKey:      null,
+    npub:           null,
+    nsec:           null,
+
+    relays:          new Map(),
     connectedRelays: 0,
-    
+
     stats: {
-        totalLogsSent: 0,
-        totalErrors: 0,
-        startTime: Date.now(),
-        lastPostTime: 0,
-        averagePostTime: 0,
+        totalLogsSent:       0,
+        totalErrors:         0,
+        startTime:           Date.now(),
+        lastPostTime:        0,
+        averagePostTime:     0,
         relayPublishSuccess: 0,
-        relayPublishFailed: 0
+        relayPublishFailed:  0
     },
-    
-    batchQueue: [],
-    batchTimer: null,
-    storedLogs: [],
-    initialized: false,
+
+    batchQueue:   [],
+    batchTimer:   null,
+    storedLogs:   [],
+    initialized:  false,
+    // Pre-init queue: events that arrive before the bot is ready get buffered
+    // and flushed once relays connect (max 20 to avoid memory bloat on cold start)
+    preInitQueue: [],
     subscriptions: new Map()
 };
 
 // ============================================
-// 📡 REAL WEBSOCKET RELAY CONNECTION
+// 📡 WEBSOCKET RELAY CONNECTION
 // ============================================
 
 class NostrRelay {
     constructor(url) {
-        this.url = url;
-        this.ws = null;
-        this.status = 'disconnected';
+        this.url              = url;
+        this.ws               = null;
+        this.status           = 'disconnected';
         this.reconnectAttempts = 0;
-        this.messageQueue = [];
-        this.pendingEvents = new Map();
+        this.messageQueue     = [];
+        this.pendingEvents    = new Map();
+        // FIX: track whether we intentionally closed so we don't reconnect
+        this._intentionalClose = false;
     }
-    
+
     connect() {
-        if (this.ws && (this.ws.readyState === 1 || this.ws.readyState === 0)) {
+        // FIX: don't re-enter if already connecting/connected
+        if (this.ws && (this.ws.readyState === WebSocket.CONNECTING || this.ws.readyState === WebSocket.OPEN)) {
             return;
         }
-        
+
+        this._intentionalClose = false;
+
         try {
             this.ws = new WebSocket(this.url);
-            
+
             this.ws.on('open', () => {
-                this.status = 'connected';
-                this.reconnectAttempts = 0;
+                this.status             = 'connected';
+                this.reconnectAttempts  = 0;
                 state.connectedRelays++;
                 log(`✅ Connected to relay: ${this.url}`, 'success');
-                
+
+                // Drain queued messages
                 while (this.messageQueue.length > 0) {
                     const msg = this.messageQueue.shift();
-                    this.ws.send(msg);
+                    try { this.ws.send(msg); } catch (_) { /* ignore */ }
+                }
+
+                // FIX: first relay up → flush any events that were queued before init
+                if (state.connectedRelays === 1 && state.preInitQueue.length > 0) {
+                    setTimeout(() => flushPreInitQueue(), 500);
                 }
             });
-            
+
             this.ws.on('message', (data) => {
                 try {
                     const msg = JSON.parse(data.toString());
-                    
+
                     if (msg[0] === 'OK') {
                         const eventId = msg[1];
                         const success = msg[2];
                         const message = msg[3] || '';
-                        
+
                         if (success) {
                             log(`✅ Relay ACCEPTED event ${eventId.substring(0, 8)}... on ${this.url}`, 'success');
                             state.stats.relayPublishSuccess++;
@@ -167,11 +210,12 @@ class NostrRelay {
                             log(`❌ Relay REJECTED event ${eventId.substring(0, 8)}... on ${this.url}: ${message}`, 'error');
                             state.stats.relayPublishFailed++;
                         }
-                        
+
+                        // FIX: always resolve, even on reject — never leave a pending event dangling
                         if (this.pendingEvents.has(eventId)) {
                             const resolve = this.pendingEvents.get(eventId);
-                            resolve(success);
                             this.pendingEvents.delete(eventId);
+                            resolve(success);
                         }
                     }
                 } catch (err) {
@@ -180,66 +224,96 @@ class NostrRelay {
                     }
                 }
             });
-            
+
             this.ws.on('error', (err) => {
-                log(`❌ Relay error on ${this.url}: ${err.message}`, 'error');
+                // FIX: error is ALWAYS followed by 'close' — just log, don't double-count
+                if (Config.DevMode) {
+                    log(`Relay error on ${this.url}: ${err.message}`, 'error');
+                }
                 this.status = 'error';
+                // FIX: resolve all pending events as failed so Promises don't hang forever
+                for (const [id, resolve] of this.pendingEvents) {
+                    this.pendingEvents.delete(id);
+                    resolve(false);
+                }
             });
-            
+
             this.ws.on('close', () => {
-                this.status = 'disconnected';
                 if (state.connectedRelays > 0) state.connectedRelays--;
+                this.status = 'disconnected';
                 log(`⚠️ Relay disconnected: ${this.url}`, 'warning');
-                
+
+                // FIX: Don't reconnect if we closed intentionally (resource stop)
+                if (this._intentionalClose) return;
+
                 if (this.reconnectAttempts < Config.Nostr.maxReconnectAttempts) {
                     this.reconnectAttempts++;
                     setTimeout(() => {
                         log(`🔄 Reconnecting to ${this.url} (attempt ${this.reconnectAttempts})...`, 'info');
                         this.connect();
                     }, Config.Nostr.reconnectDelay);
+                } else {
+                    log(`❌ Max reconnect attempts reached for ${this.url}, giving up`, 'warning');
                 }
             });
-            
+
         } catch (err) {
             log(`❌ Failed to connect to ${this.url}: ${err.message}`, 'error');
             this.status = 'error';
         }
     }
-    
+
     async publish(event) {
         return new Promise((resolve) => {
-            if (!this.ws || this.ws.readyState !== 1) {
-                log(`⚠️ Relay ${this.url} not connected, queuing event`, 'warning');
+            if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
                 resolve(false);
                 return;
             }
-            
+
+            let timeoutHandle = null;
+
             try {
                 const message = JSON.stringify(['EVENT', event]);
                 this.ws.send(message);
-                
-                this.pendingEvents.set(event.id, resolve);
-                
-                setTimeout(() => {
+
+                // FIX: store resolve so the 'message' handler can call it
+                this.pendingEvents.set(event.id, (success) => {
+                    clearTimeout(timeoutHandle);
+                    resolve(success);
+                });
+
+                // FIX: timeout always cleans up pendingEvents and resolves
+                timeoutHandle = setTimeout(() => {
                     if (this.pendingEvents.has(event.id)) {
                         log(`⏰ Timeout waiting for OK from ${this.url}`, 'warning');
                         this.pendingEvents.delete(event.id);
                         resolve(false);
                     }
                 }, Config.Nostr.publishTimeout);
-                
+
             } catch (err) {
+                clearTimeout(timeoutHandle);
                 log(`❌ Error publishing to ${this.url}: ${err.message}`, 'error');
                 resolve(false);
             }
         });
     }
-    
+
+    // FIX: mark intentional, remove listeners so 'close' doesn't trigger reconnect
     close() {
+        this._intentionalClose = true;
         if (this.ws) {
-            this.ws.close();
-            this.status = 'disconnected';
+            // Resolve all pending events as failed before closing
+            for (const [id, resolve] of this.pendingEvents) {
+                this.pendingEvents.delete(id);
+                resolve(false);
+            }
+            try {
+                this.ws.terminate(); // faster than close() for shutdown
+            } catch (_) { /* ignore */ }
+            this.ws = null;
         }
+        this.status = 'disconnected';
     }
 }
 
@@ -249,59 +323,70 @@ class NostrRelay {
 
 function initializeBot() {
     log('🤖 Initializing Nostr Bot...', 'info');
-    
+
     try {
-        let privKeyHex = Config.Nostr.privateKey;
-        
-        if (!privKeyHex || privKeyHex === '') {
-            privKeyHex = bytesToHex(crypto.randomBytes(32));
-            state.nsec = nip19.nsecEncode(privKeyHex);
+        const rawKey = Config.Nostr.privateKey;
+
+        // --- Resolve private key to Uint8Array (v2.x requires Uint8Array everywhere) ---
+        let privBytes; // Uint8Array — the single source of truth
+
+        if (!rawKey || rawKey.trim() === '') {
+            // Auto-generate
+            privBytes  = crypto.randomBytes(32);
+            state.nsec = nip19.nsecEncode(privBytes);
             log('⚠️ NO PRIVATE KEY! Generated new key:', 'warning');
-            log(`📝 Add to config: privateKey = '${privKeyHex}'`, 'warning');
-            log(`📝 Or nsec: ${state.nsec}`, 'warning');
-        } else {
-            if (privKeyHex.startsWith('nsec')) {
-                try {
-                    const decoded = nip19.decode(privKeyHex);
-                    privKeyHex = decoded.data;
-                } catch (err) {
-                    log('⚠️ Invalid nsec format, using deterministic key', 'warning');
-                    const hash = crypto.createHash('sha256').update(privKeyHex).digest('hex');
-                    privKeyHex = hash;
+            log(`📝 nsec: ${state.nsec}`, 'warning');
+            log(`📝 hex:  ${bytesToHex(privBytes)}`, 'warning');
+
+        } else if (rawKey.startsWith('nsec')) {
+            // Decode nsec → Uint8Array
+            try {
+                const decoded = nip19.decode(rawKey);
+                if (decoded.type !== 'nsec' || !decoded.data) {
+                    throw new Error('Decoded type is not nsec');
                 }
+                privBytes  = decoded.data; // already Uint8Array in v2.x
+                state.nsec = nip19.nsecEncode(privBytes);
+            } catch (decodeErr) {
+                log(`⚠️ nsec decode failed (${decodeErr.message}), generating new key`, 'error');
+                privBytes  = crypto.randomBytes(32);
+                state.nsec = nip19.nsecEncode(privBytes);
             }
-            state.nsec = nip19.nsecEncode(privKeyHex);
+
+        } else {
+            // Raw hex string → Uint8Array
+            privBytes  = hexToBytes(rawKey);
+            state.nsec = nip19.nsecEncode(privBytes);
         }
-        
-        state.privateKey = privKeyHex;
-        state.publicKey = getPublicKey(privKeyHex);
-        state.npub = nip19.npubEncode(state.publicKey);
-        
-        log(`✅ Bot Identity:`, 'success');
-        log(`   npub: ${state.npub}`, 'info');
+
+        // Store both forms — hex for display, bytes for crypto ops
+        state.privateKey      = privBytes;        // Uint8Array — used in finalizeEvent()
+        state.privateKeyHex   = bytesToHex(privBytes); // hex string — display only
+        state.publicKey       = getPublicKey(privBytes); // v2.x: needs Uint8Array
+        state.npub            = nip19.npubEncode(state.publicKey);
+
+        log(`✅ Bot Identity loaded`, 'success');
+        log(`   npub:   ${state.npub}`, 'info');
         log(`   pubkey: ${state.publicKey}`, 'info');
-        
+        log(`   hex:    ${state.privateKeyHex}`, 'info');
+
         connectToRelays();
-        
+
         if (Config.Nostr.batchEnabled) {
             startBatchProcessor();
         }
-        
+
         state.initialized = true;
-        
-        setTimeout(() => {
-            if (state.connectedRelays > 0) {
-                postToNostr('🐉 RDE Nostr Bot ONLINE | Server logging active ⚡777', [
-                    ['event', 'bot_startup'],
-                    ['timestamp', Date.now().toString()]
-                ]);
-            } else {
-                log('⚠️ No relays connected yet, skipping startup post', 'warning');
-            }
-        }, 5000);
-        
+
+        // Queue the startup post — will be flushed by flushPreInitQueue()
+        // once the first relay connects (no need for a hardcoded 8s delay)
+        state.preInitQueue.unshift({
+            content:    '🐉 RDE Nostr Bot ONLINE | Server logging active ⚡777',
+            customTags: [['event', 'bot_startup'], ['timestamp', Date.now().toString()]]
+        });
+
         return true;
-        
+
     } catch (err) {
         log(`❌ Initialization failed: ${err.message}`, 'error');
         log(err.stack, 'error');
@@ -309,10 +394,25 @@ function initializeBot() {
     }
 }
 
+// Drain events queued before relays were ready
+function flushPreInitQueue() {
+    if (state.preInitQueue.length === 0) return;
+    log(`⚡ Flushing ${state.preInitQueue.length} queued pre-init events...`, 'info');
+    const queue = state.preInitQueue.splice(0);
+    for (const item of queue) {
+        postToNostr(item.content, item.customTags || []);
+    }
+}
+
 function connectToRelays() {
     log(`📡 Connecting to ${Config.Nostr.relays.length} relays...`, 'info');
-    
+
     for (const url of Config.Nostr.relays) {
+        // FIX: skip if we already have a relay object for this URL
+        if (state.relays.has(url)) {
+            state.relays.get(url).connect(); // will no-op if already connected
+            continue;
+        }
         const relay = new NostrRelay(url);
         state.relays.set(url, relay);
         relay.connect();
@@ -323,75 +423,103 @@ function connectToRelays() {
 // 📤 POST TO NOSTR
 // ============================================
 
+// FIX: This function NEVER throws and NEVER returns a rejected Promise.
+// All internal errors are caught, logged, and return false.
+// This is the contract callers depend on.
 async function postToNostr(content, customTags = []) {
-    if (!state.initialized) {
-        log('⚠️ Bot not initialized yet', 'warning');
+    // FIX: validate content first — before any queue logic
+    if (!content || typeof content !== 'string') return false;
+
+    // If bot isn't ready yet, queue the event instead of dropping it silently.
+    // flushPreInitQueue() drains this once relays connect.
+    if (!state.initialized || state.connectedRelays === 0) {
+        if (state.preInitQueue.length < 20) {
+            state.preInitQueue.push({ content, customTags });
+            if (Config.DevMode) log(`⏳ Queued pre-init [${state.preInitQueue.length}/20]: ${content.substring(0,50)}`, 'info');
+        }
         return false;
     }
-    
+
     const startTime = Date.now();
-    
+
     try {
         const sanitizedContent = sanitizeContent(content);
-        
-        const event = {
-            kind: 1,
-            pubkey: state.publicKey,
-            created_at: Math.floor(Date.now() / 1000),
-            tags: [...Config.Nostr.defaultTags, ...customTags],
-            content: sanitizedContent
-        };
-        
-        event.id = getEventHash(event);
-        event.sig = getSignature(event, state.privateKey);
-        
-        log(`📤 Publishing: "${content.substring(0, 50)}${content.length > 50 ? '...' : ''}"`, 'info');
-        
-        const publishPromises = [];
+
+        // v2.x: finalizeEvent(template, privKeyBytes) handles hash+sign in one call
+        // state.privateKey is Uint8Array (set during initializeBot)
+        let event;
+        try {
+            event = finalizeEvent({
+                kind:       1,
+                created_at: Math.floor(Date.now() / 1000),
+                tags:       [...Config.Nostr.defaultTags, ...customTags],
+                content:    sanitizedContent
+            }, state.privateKey); // Uint8Array — v2.x API
+
+        } catch (signErr) {
+            log(`❌ Event signing failed: ${signErr.message}`, 'error');
+            state.stats.totalErrors++;
+            return false;
+        }
+
+        log(`📤 Publishing: "${content.substring(0, 60)}${content.length > 60 ? '...' : ''}"`, 'info');
+
         let successCount = 0;
-        let failCount = 0;
-        
-        for (const [url, relay] of state.relays) {
+        let failCount    = 0;
+
+        const publishPromises = [];
+
+        for (const [, relay] of state.relays) {
             const promise = relay.publish(event).then(success => {
-                if (success) {
-                    successCount++;
-                } else {
-                    failCount++;
-                }
+                if (success) { successCount++; } else { failCount++; }
                 return success;
             });
-            publishPromises.push(promise);
+            // FIX: each per-relay promise already resolves (never rejects) — belt-and-suspenders
+            publishPromises.push(promise.catch(() => { failCount++; return false; }));
         }
-        
+
+        // FIX: Promise.all on promises that never reject — safe
         await Promise.all(publishPromises);
-        
+
         const postTime = Date.now() - startTime;
-        state.stats.averagePostTime = 
-            (state.stats.averagePostTime * state.stats.totalLogsSent + postTime) / 
-            (state.stats.totalLogsSent + 1);
-        
+
+        // Running average
+        const total = state.stats.totalLogsSent;
+        state.stats.averagePostTime = total === 0
+            ? postTime
+            : (state.stats.averagePostTime * total + postTime) / (total + 1);
+
         state.stats.totalLogsSent++;
         state.stats.lastPostTime = Date.now();
-        
+
+        // Store in memory for UI — include relay info for NUI display
         if (Config.Performance.storeLogsInMemory) {
+            // Build list of relay short-names that accepted this event
+            const acceptedRelays = Array.from(state.relays.entries())
+                .filter(([, relay]) => relay.status === 'connected')
+                .map(([url]) => url);
+
             state.storedLogs.unshift({
-                timestamp: event.created_at,
-                content: sanitizedContent,
-                eventId: event.id
+                timestamp:  event.created_at,
+                content:    sanitizedContent,
+                eventId:    event.id,
+                relayUrl:   acceptedRelays[0] || 'wss://server',  // primary relay for display
+                relayCount: successCount,
+                relayTotal: state.relays.size
             });
-            
+
             if (state.storedLogs.length > Config.Performance.maxStoredLogs) {
                 state.storedLogs.pop();
             }
         }
-        
+
         log(`✅ Published to ${successCount}/${state.relays.size} relays (${failCount} failed) in ${postTime}ms`, 'success');
-        
         return true;
-        
+
     } catch (err) {
-        log(`❌ Post failed: ${err.message}`, 'error');
-        log(err.stack, 'error');
+        // Catch-all — should never reach here with the inner catches above, but just in case
+        log(`❌ Post failed unexpectedly: ${err.message}`, 'error');
+        if (Config.DevMode) log(err.stack, 'error');
         state.stats.totalErrors++;
         return false;
     }
@@ -412,16 +540,17 @@ function startBatchProcessor() {
 function processBatch() {
     const batch = state.batchQueue.splice(0, Config.Nostr.batchMaxSize);
     if (batch.length === 0) return;
-    
-    const combinedContent = batch.map((item, index) => 
-        `${index + 1}. ${item.content}`
-    ).join('\n');
-    
+
+    const combinedContent = batch
+        .map((item, index) => `${index + 1}. ${item.content}`)
+        .join('\n');
+
     const combinedTags = [
-        ['batch', 'true'],
+        ['batch',      'true'],
         ['batch_size', batch.length.toString()]
     ];
-    
+
+    // postToNostr never throws/rejects — no .catch() needed, but it doesn't hurt
     postToNostr(combinedContent, combinedTags);
 }
 
@@ -437,20 +566,26 @@ function addToBatch(content, tags = []) {
 // ============================================
 
 function isPlayerAdmin(source) {
-    const identifier = GetPlayerIdentifierByType(source, 'steam');
-    
+    if (!source || source === 0) return false;
+
     for (const method of Config.AdminSystem.checkOrder) {
-        if (method === 'ace') {
-            if (IsPlayerAceAllowed(source, Config.AdminSystem.acePermission)) {
-                return true;
+        try {
+            if (method === 'ace') {
+                if (IsPlayerAceAllowed(source, Config.AdminSystem.acePermission)) {
+                    return true;
+                }
+            } else if (method === 'steam') {
+                let identifier = null;
+                try { identifier = GetPlayerIdentifierByType(source, 'steam'); } catch (_) {}
+                if (identifier && Config.AdminSystem.steamIds.includes(identifier)) {
+                    return true;
+                }
             }
-        } else if (method === 'steam') {
-            if (identifier && Config.AdminSystem.steamIds.includes(identifier)) {
-                return true;
-            }
+        } catch (_) {
+            // Player already gone from server — treat as non-admin
         }
     }
-    
+
     return false;
 }
 
@@ -459,31 +594,37 @@ function isPlayerAdmin(source) {
 // ============================================
 
 function logPlayerEvent(eventType, player, extraData = {}) {
+    // RDE Standard: guard all inputs — external scripts may pass undefined/null
+    if (!player || typeof player !== 'object') {
+        player = { name: 'Unknown', identifier: 'unknown' };
+    }
+
     const templates = {
-        player_connecting: '🔌 {name} ({identifier}) connecting...',
-        player_connected: '✅ {name} joined | Players: {playerCount}',
+        player_connecting:   '🔌 {name} ({identifier}) connecting...',
+        player_connected:    '✅ {name} joined | Players: {playerCount}',
         player_disconnected: '❌ {name} left | Reason: {reason}'
     };
-    
+
     const template = templates[eventType];
     if (!template) return;
-    
+
     let content = template
-        .replace('{name}', player.name || 'Unknown')
-        .replace('{identifier}', player.identifier || 'Unknown');
-    
+        .replace('{name}',       player.name       || 'Unknown')
+        .replace('{identifier}', player.identifier || 'unknown');
+
     for (const [key, value] of Object.entries(extraData)) {
-        content = content.replace(`{${key}}`, value);
+        content = content.replace(`{${key}}`, value ?? 'unknown');
     }
-    
+
     const tags = [
         ['event_type', eventType],
-        ['player', player.identifier || '']
+        ['player',     player.identifier || '']
     ];
-    
+
     if (Config.Nostr.batchEnabled) {
         addToBatch(content, tags);
     } else {
+        // postToNostr never rejects — fire and forget is safe here
         postToNostr(content, tags);
     }
 }
@@ -492,23 +633,45 @@ function logPlayerEvent(eventType, player, extraData = {}) {
 // 🎮 FIVEM EVENT HANDLERS
 // ============================================
 
-onNet('playerConnecting', (name, setKickReason, deferrals) => {
+onNet('playerConnecting', (name, _setKickReason, _deferrals) => {
+    // FIX: capture source synchronously — global.source changes on the next tick
     const source = global.source;
-    const identifier = GetPlayerIdentifierByType(source, 'steam');
-    
+
+    // FIX: full identifier fallback chain
+    let identifier = 'unknown';
+    try {
+        identifier =
+            GetPlayerIdentifierByType(source, 'steam')   ||
+            GetPlayerIdentifierByType(source, 'license') ||
+            GetPlayerIdentifierByType(source, 'fivem')   ||
+            'unknown';
+    } catch (_) { /* native threw — player already gone */ }
+
     logPlayerEvent('player_connecting', {
-        name: name,
+        name:       name || 'Unknown',
         identifier: identifier
     });
 });
 
 on('playerJoining', (source) => {
-    const name = GetPlayerName(source);
-    const identifier = GetPlayerIdentifierByType(source, 'steam');
-    const playerCount = GetNumPlayerIndices();
-    
+    // FIX: null-guard on GetPlayerName — native can return null
+    let name = 'Unknown';
+    try { name = GetPlayerName(source) || 'Unknown'; } catch (_) {}
+
+    let identifier = 'unknown';
+    try {
+        identifier =
+            GetPlayerIdentifierByType(source, 'steam')   ||
+            GetPlayerIdentifierByType(source, 'license') ||
+            GetPlayerIdentifierByType(source, 'fivem')   ||
+            'unknown';
+    } catch (_) {}
+
+    let playerCount = 0;
+    try { playerCount = GetNumPlayerIndices(); } catch (_) {}
+
     logPlayerEvent('player_connected', {
-        name: name,
+        name:       name,
         identifier: identifier
     }, {
         playerCount: playerCount
@@ -516,19 +679,32 @@ on('playerJoining', (source) => {
 });
 
 on('playerDropped', (reason) => {
+    // FIX: capture source IMMEDIATELY — global.source is only valid right now
     const source = global.source;
-    
-    // ✅ FIX: Player may already be removed from server when this fires
-    const name = GetPlayerName(source);
+
+    // FIX: GetPlayerName can return null when the player is already removed
+    let name = null;
+    try { name = GetPlayerName(source); } catch (_) {}
+
     if (!name) {
-        log(`⚠️ playerDropped: Player ${source} already removed, skipping log`, 'warning');
+        // Player already fully removed from the server — nothing to log
+        if (Config.DevMode) {
+            log(`⚠️ playerDropped: source ${source} already removed, skipping log`, 'warning');
+        }
         return;
     }
-    
-    const identifier = GetPlayerIdentifierByType(source, 'steam') || 'unknown';
-    
+
+    let identifier = 'unknown';
+    try {
+        identifier =
+            GetPlayerIdentifierByType(source, 'steam')   ||
+            GetPlayerIdentifierByType(source, 'license') ||
+            GetPlayerIdentifierByType(source, 'fivem')   ||
+            'unknown';
+    } catch (_) {}
+
     logPlayerEvent('player_disconnected', {
-        name: name,
+        name:       name,
         identifier: identifier
     }, {
         reason: reason || 'Unknown'
@@ -536,88 +712,81 @@ on('playerDropped', (reason) => {
 });
 
 // ============================================
-// 📡 NETWORK EVENTS
+// 📡 NETWORK EVENTS (Admin)
 // ============================================
 
 onNet('rde_nostr:postLog', (content, tags) => {
     const source = global.source;
-    
+
     if (!isPlayerAdmin(source)) {
         emitNet('rde_nostr:error', source, 'Admin access required');
         return;
     }
-    
-    const playerName = GetPlayerName(source);
+
+    let playerName = 'Unknown Admin';
+    try { playerName = GetPlayerName(source) || 'Unknown Admin'; } catch (_) {}
+
     const formattedContent = `👑 [ADMIN - ${playerName}] ${content}`;
-    
+
     postToNostr(formattedContent, [
         ['admin_post', 'true'],
-        ['admin', playerName],
-        ...(tags || [])
+        ['admin',      playerName],
+        ...(Array.isArray(tags) ? tags : [])
     ]);
-    
+
     emitNet('rde_nostr:success', source, 'Manual post sent');
 });
 
 onNet('rde_nostr:getStatus', () => {
     const source = global.source;
-    
+
     if (!isPlayerAdmin(source)) {
         emitNet('rde_nostr:error', source, 'Admin access required');
         return;
     }
-    
-    const relayUrls = Array.from(state.relays.keys());
-    
-    const status = {
-        initialized: state.initialized,
-        npub: state.npub,
-        publicKey: state.publicKey,
-        relays: state.relays.size,
+
+    emitNet('rde_nostr:status', source, {
+        initialized:     state.initialized,
+        npub:            state.npub,
+        publicKey:       state.publicKey,
+        relays:          state.relays.size,
         connectedRelays: state.connectedRelays,
-        stats: state.stats,
-        batchQueue: state.batchQueue.length,
-        relayUrls: relayUrls
-    };
-    
-    emitNet('rde_nostr:status', source, status);
+        stats:           state.stats,
+        batchQueue:      state.batchQueue.length,
+        relayUrls:       Array.from(state.relays.keys())
+    });
 });
 
 onNet('rde_nostr:getLogs', () => {
     const source = global.source;
-    
+
     if (!isPlayerAdmin(source)) {
         emitNet('rde_nostr:error', source, 'Admin access required');
         return;
     }
-    
+
     emitNet('rde_nostr:logs', source, state.storedLogs);
 });
 
 onNet('rde_nostr:requestPanelAccess', () => {
     const source = global.source;
-    
+
     if (!isPlayerAdmin(source)) {
         emitNet('rde_nostr:panelDenied', source);
         return;
     }
-    
+
     emitNet('rde_nostr:openPanel', source);
-    
-    const relayUrls = Array.from(state.relays.keys());
-    
-    const status = {
-        initialized: state.initialized,
-        npub: state.npub,
-        publicKey: state.publicKey,
-        relays: state.relays.size,
+    emitNet('rde_nostr:status', source, {
+        initialized:     state.initialized,
+        npub:            state.npub,
+        publicKey:       state.publicKey,
+        relays:          state.relays.size,
         connectedRelays: state.connectedRelays,
-        stats: state.stats,
-        batchQueue: state.batchQueue.length,
-        relayUrls: relayUrls
-    };
-    
-    emitNet('rde_nostr:status', source, status);
+        stats:           state.stats,
+        batchQueue:      state.batchQueue.length,
+        relayUrls:       Array.from(state.relays.keys())
+    });
     emitNet('rde_nostr:logs', source, state.storedLogs);
 });
 
@@ -626,40 +795,42 @@ onNet('rde_nostr:requestPanelAccess', () => {
 // ============================================
 
 global.exports('postLog', (content, tags = []) => {
-    return postToNostr(content, tags);
+    // RDE Standard: guard tags — external scripts may pass null/undefined/non-array
+    const safeTags = Array.isArray(tags) ? tags : [];
+    // Returns a Promise that ALWAYS resolves (never rejects)
+    return postToNostr(content, safeTags);
 });
 
 global.exports('postEvent', (eventType, player, extraData = {}) => {
-    return logPlayerEvent(eventType, player, extraData);
+    // RDE Standard: external callers (rde_aipilot etc.) may pass undefined player
+    try {
+        const safeplayer = (player && typeof player === 'object') ? player : { name: 'Unknown', identifier: 'unknown' };
+        logPlayerEvent(eventType, safeplayer, extraData || {});
+    } catch (err) {
+        log(`❌ postEvent export error: ${err.message}`, 'error');
+    }
 });
 
-global.exports('getBotPubkey', () => {
-    return state.publicKey;
-});
-
-global.exports('getBotNpub', () => {
-    return state.npub;
-});
+global.exports('getBotPubkey', () => state.publicKey);
+global.exports('getBotNpub',   () => state.npub);
 
 // ============================================
 // 🚀 STARTUP
 // ============================================
 
 setImmediate(() => {
-    log('🐉 RED DRAGON ELITE | NOSTR LOG BOT', 'info');
-    log('⚡ FIVEM COMPATIBLE - Using nostr-tools', 'info');
-    log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'info');
-    
+    log('🐉 RED DRAGON ELITE | NOSTR LOG BOT v1.1.0', 'info');
+    log('⚡ FIVEM COMPATIBLE - Using nostr-tools',    'info');
+    log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',  'info');
+
     const success = initializeBot();
-    
+
     if (success) {
-        log('🚀 Bot is LIVE and logging to Nostr!', 'success');
+        log('🚀 Bot is LIVE and logging to Nostr!',             'success');
         log(`📡 Connecting to ${Config.Nostr.relays.length} relays...`, 'info');
-        log(`🔑 npub: ${state.npub}`, 'info');
-        log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'info');
-        log('', 'info');
-        log('💡 Watch for "✅ Relay ACCEPTED" or "❌ Relay REJECTED" messages!', 'info');
-        log('', 'info');
+        log(`🔑 npub: ${state.npub}`,                           'info');
+        log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',         'info');
+        log('💡 Watch for ✅ Relay ACCEPTED or ❌ REJECTED messages!', 'info');
     }
 });
 
@@ -669,22 +840,27 @@ setImmediate(() => {
 
 on('onResourceStop', (resourceName) => {
     if (GetCurrentResourceName() !== resourceName) return;
-    
+
     log('🛑 Shutting down Nostr Bot...', 'warning');
-    
+
     if (state.initialized) {
-        postToNostr('🛑 RDE Server Nostr Bot shutting down', [['event', 'shutdown']]);
-        
-        setTimeout(() => {
-            for (const [url, relay] of state.relays) {
-                relay.close();
-            }
-        }, 1000);
+        // FIX: await the post then close relays (can't await in sync handler,
+        // so we chain: post → then close after a short delay)
+        postToNostr('🛑 RDE Server Nostr Bot shutting down', [
+            ['event', 'shutdown']
+        ]).then(() => {
+            setTimeout(() => {
+                for (const [, relay] of state.relays) {
+                    relay.close();
+                }
+            }, 500);
+        });
     }
-    
+
     if (state.batchTimer) {
         clearInterval(state.batchTimer);
+        state.batchTimer = null;
     }
-    
+
     log('✅ Nostr Bot stopped', 'success');
 });

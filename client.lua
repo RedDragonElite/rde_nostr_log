@@ -1,50 +1,59 @@
 -- ============================================
--- 🐉 RDE NOSTR LOG BOT | CLIENT SCRIPT
+-- 🐉 RDE NOSTR LOG BOT | CLIENT SCRIPT v1.1.0
 -- NUI Integration & Keybinds
--- Author: RDE | SerpentsByte & Shin
+-- ============================================
+-- 🛠️ FIXED v1.1.0:
+--   ✅ getStatus NUI Callback gibt echte Daten zurück
+--      (vorher: cb('ok') → NUI hatte botStatus = "ok" → OFFLINE)
+--   ✅ getLogs NUI Callback gibt echte Daten zurück
+--   ✅ Status-Cache auf Client-Seite — kein Race Condition mehr
+--   ✅ Panel open schickt sofort gecachten Status an NUI
+--   ✅ Server-Events updaten den Cache UND die NUI gleichzeitig
 -- ============================================
 
 local isNuiOpen = false
 
 -- ============================================
+-- 📦 CLIENT-SIDE STATE CACHE
+-- FIX: NUI fetch callbacks geben direkt cached Daten zurück
+-- ============================================
+local cachedStatus = nil
+local cachedLogs   = {}
+
+-- ============================================
 -- 🎮 NUI CONTROL
 -- ============================================
 
--- Open NUI
 local function openNui()
     if isNuiOpen then return end
-    
     isNuiOpen = true
     SetNuiFocus(true, true)
-    
-    SendNUIMessage({
-        action = 'show'
-    })
+    SendNUIMessage({ action = 'show' })
+
+    -- FIX: sofort gecachten Status schicken falls vorhanden
+    if cachedStatus then
+        SendNUIMessage({ action = 'updateStatus', status = cachedStatus })
+    end
+    if #cachedLogs > 0 then
+        SendNUIMessage({ action = 'updateLogs', logs = cachedLogs })
+    end
 end
 
--- Close NUI
 local function closeNui()
     if not isNuiOpen then return end
-    
     isNuiOpen = false
     SetNuiFocus(false, false)
-    
-    SendNUIMessage({
-        action = 'hide'
-    })
+    SendNUIMessage({ action = 'hide' })
 end
 
 -- ============================================
 -- 🎯 KEYBIND REGISTRATION
 -- ============================================
 
--- Register command to open admin panel
 RegisterCommand('nostrpanel', function()
-    -- Admin check is done server-side
     TriggerServerEvent('rde_nostr:requestPanelAccess')
 end, false)
 
--- Register keybind (F5 by default, configurable)
 if not Config then
     print('^1[RDE-NOSTR] ERROR: Config not loaded! Check fxmanifest.lua^0')
     return
@@ -55,112 +64,106 @@ RegisterKeyMapping('nostrpanel', 'Open Nostr Admin Panel', 'keyboard', keybind)
 
 -- ============================================
 -- 📡 NUI CALLBACKS
+-- FIX: getStatus und getLogs geben jetzt direkt Daten zurück
+-- kein TriggerServerEvent mehr nötig — Cache wird durch
+-- Server-Events aktuell gehalten
 -- ============================================
 
--- Close panel callback
 RegisterNUICallback('closePanel', function(data, cb)
     closeNui()
     cb('ok')
 end)
 
--- Post log callback
 RegisterNUICallback('postLog', function(data, cb)
     TriggerServerEvent('rde_nostr:postLog', data.content, data.tags or {})
-    cb({success = true})
+    cb({ success = true })
 end)
 
--- Get status callback
+-- FIX: direkt cached Status zurückgeben statt TriggerServerEvent
 RegisterNUICallback('getStatus', function(data, cb)
-    TriggerServerEvent('rde_nostr:getStatus')
-    cb('ok')
+    if cachedStatus then
+        cb(cachedStatus)
+    else
+        -- Kein Cache — Server fragen und mit 'ok' antworten
+        -- NUI kriegt Update dann über updateStatus message
+        TriggerServerEvent('rde_nostr:getStatus')
+        cb({ initialized = false, connectedRelays = 0, relays = 0,
+             relayUrls = {}, stats = {}, npub = 'Loading...', publicKey = '' })
+    end
 end)
 
--- Get logs callback
+-- FIX: direkt cached Logs zurückgeben
 RegisterNUICallback('getLogs', function(data, cb)
-    TriggerServerEvent('rde_nostr:getLogs')
-    cb('ok')
+    cb(cachedLogs)
 end)
 
 -- ============================================
 -- 🎨 SERVER EVENTS
 -- ============================================
 
--- Panel access granted
 RegisterNetEvent('rde_nostr:openPanel', function()
     openNui()
+    -- Nach dem Öffnen frischen Status holen
+    TriggerServerEvent('rde_nostr:getStatus')
+    TriggerServerEvent('rde_nostr:getLogs')
 end)
 
--- Panel access denied
 RegisterNetEvent('rde_nostr:panelDenied', function()
     lib.notify({
-        title = GetLanguageString('error'),
-        description = GetLanguageString('admin_only'),
-        type = 'error',
-        icon = 'shield-alert',
-        iconColor = '#ef4444'
+        title       = 'RDE Nostr',
+        description = 'Admin access required',
+        type        = 'error',
+        icon        = 'shield-alert',
+        iconColor   = '#ef4444'
     })
 end)
 
--- Success message from server
 RegisterNetEvent('rde_nostr:success', function(message)
-    SendNUIMessage({
-        action = 'message',
-        message = message,
-        type = 'success'
-    })
-    
+    SendNUIMessage({ action = 'message', message = message, type = 'success' })
     lib.notify({
-        title = GetLanguageString('success'),
+        title       = 'RDE Nostr',
         description = message,
-        type = 'success',
-        icon = 'check-circle',
-        iconColor = '#10b981'
+        type        = 'success',
+        icon        = 'check-circle',
+        iconColor   = '#10b981'
     })
 end)
 
--- Error message from server
 RegisterNetEvent('rde_nostr:error', function(message)
-    SendNUIMessage({
-        action = 'message',
-        message = message,
-        type = 'error'
-    })
-    
+    SendNUIMessage({ action = 'message', message = message, type = 'error' })
     lib.notify({
-        title = GetLanguageString('error'),
+        title       = 'RDE Nostr',
         description = message,
-        type = 'error',
-        icon = 'x-circle',
-        iconColor = '#ef4444'
+        type        = 'error',
+        icon        = 'x-circle',
+        iconColor   = '#ef4444'
     })
 end)
 
--- Status update from server
+-- FIX: Status cachen UND sofort an NUI schicken
 RegisterNetEvent('rde_nostr:status', function(status)
-    SendNUIMessage({
-        action = 'updateStatus',
-        status = status
-    })
+    cachedStatus = status
+    if isNuiOpen then
+        SendNUIMessage({ action = 'updateStatus', status = status })
+    end
 end)
 
--- Logs update from server
+-- FIX: Logs cachen UND sofort an NUI schicken
 RegisterNetEvent('rde_nostr:logs', function(logs)
-    SendNUIMessage({
-        action = 'updateLogs',
-        logs = logs
-    })
+    cachedLogs = logs or {}
+    if isNuiOpen then
+        SendNUIMessage({ action = 'updateLogs', logs = cachedLogs })
+    end
 end)
 
 -- ============================================
--- 🔐 ADMIN COMMAND (Alternative to keybind)
+-- 🔐 ADMIN COMMAND
 -- ============================================
 
 RegisterCommand('nostrlog', function(source, args, raw)
     if #args == 0 then
-        -- No args = open panel
         TriggerServerEvent('rde_nostr:requestPanelAccess')
     else
-        -- With args = post directly
         local content = table.concat(args, ' ')
         TriggerServerEvent('rde_nostr:postLog', content, {})
     end
@@ -172,28 +175,16 @@ end, false)
 
 AddEventHandler('onResourceStop', function(resourceName)
     if GetCurrentResourceName() ~= resourceName then return end
-    
-    -- Close NUI if open
-    if isNuiOpen then
-        closeNui()
-    end
+    if isNuiOpen then closeNui() end
 end)
 
 -- ============================================
--- 📊 DEBUG COMMANDS (Dev Mode)
+-- 📊 DEBUG COMMANDS
 -- ============================================
 
 if Config.DevMode then
-    RegisterCommand('nostr_test', function()
-        print('[RDE-NOSTR] Testing NUI...')
-        openNui()
-    end, false)
-    
-    RegisterCommand('nostr_close', function()
-        print('[RDE-NOSTR] Closing NUI...')
-        closeNui()
-    end, false)
-    
+    RegisterCommand('nostr_test',   function() print('[RDE-NOSTR] Testing NUI...') openNui() end, false)
+    RegisterCommand('nostr_close',  function() print('[RDE-NOSTR] Closing NUI...') closeNui() end, false)
     RegisterCommand('nostr_status', function()
         print('[RDE-NOSTR] Requesting status...')
         TriggerServerEvent('rde_nostr:getStatus')
@@ -204,38 +195,35 @@ end
 -- 🎨 VISUAL FEEDBACK
 -- ============================================
 
--- Show notification when bot posts (optional, can be disabled)
-if Config.UI.showNotifications then
+if Config.UI and Config.UI.showNotifications then
     RegisterNetEvent('rde_nostr:logPosted', function(content)
         if Config.DevMode then
             lib.notify({
-                title = '📡 Nostr Log',
+                title       = '📡 Nostr Log',
                 description = 'Log posted to Nostr',
-                type = 'info',
-                icon = 'rss',
-                iconColor = '#3b82f6',
-                duration = 3000
+                type        = 'info',
+                icon        = 'rss',
+                iconColor   = '#3b82f6',
+                duration    = 3000
             })
         end
     end)
 end
 
 -- ============================================
--- 🚀 STARTUP MESSAGE
+-- 🚀 STARTUP
 -- ============================================
 
 CreateThread(function()
-    Wait(5000) -- Wait for server to initialize
-    
+    Wait(5000)
     if not Config then
         print('^1[RDE-NOSTR] ERROR: Config not loaded in client!^0')
         return
     end
-    
     if Config.DevMode then
-        local keybind = Config.UI and Config.UI.keybind or 'F9'
-        print('^2[RDE-NOSTR] Client initialized^0')
-        print('^5[RDE-NOSTR] Press ' .. keybind .. ' to open admin panel^0')
+        local kb = Config.UI and Config.UI.keybind or 'F9'
+        print('^2[RDE-NOSTR] Client v1.1.0 initialized^0')
+        print('^5[RDE-NOSTR] Press ' .. kb .. ' to open admin panel^0')
         print('^5[RDE-NOSTR] Or use command: /nostrpanel^0')
     end
 end)
