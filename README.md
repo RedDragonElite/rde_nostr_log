@@ -33,11 +33,9 @@ And this awesome one: [Get 0xChat](https://github.com/0xchat-app)
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/2b7c5823-6f27-4950-adce-b633c4ada745" />
 <img width="1021" height="593" alt="image" src="https://github.com/user-attachments/assets/3a8050ef-5985-4ad8-ad5c-fa8f4db024d4" />
 <img width="1920" height="1080" alt="113Fwdaawdok" src="https://github.com/user-attachments/assets/94980ee4-c8c5-4550-863b-be9c39d192c9" />
-<img width="1920" height="1080" alt="113Fwdwddaawdok" src="https://github.com/user-attachments/assets/03f9b6fd-2a66-469f-906a-e0ad6bca84b9" />
-<img width="1920" height="1080" alt="113Fwdafefeawdok" src="https://github.com/user-attachments/assets/d4734fb0-c096-41f1-bf95-ab27b143f8ea" />
-<img width="1920" height="1080" alt="113Fwdaawffswedok" src="https://github.com/user-attachments/assets/054d4bd7-4a2e-43a5-81b9-4db4d7062be6" />
-<img width="638" height="957" alt="image" src="https://github.com/user-attachments/assets/aefb2ff2-80c2-4321-b8d1-5291b26335b8" />
-
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/95c4e0cc-58ce-4b25-8640-7075b1fd7f4b" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/ca9a7c7a-d349-4fb6-b2a7-2fc0050ef077" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/27aee96b-b0db-4700-a734-79f7a8b7f894" />
 
 > 📱 **[Watch the reveal on TikTok](https://www.tiktok.com/@serpentsbyte/video/7606598159921319190)** — First ever FiveM Nostr Bot drop
 
