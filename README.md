@@ -32,10 +32,12 @@ And this awesome one: [Get 0xChat](https://github.com/0xchat-app)
 <img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/e064573d-2fa4-4a69-b1b4-934f19f58314" />
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/2b7c5823-6f27-4950-adce-b633c4ada745" />
 <img width="1021" height="593" alt="image" src="https://github.com/user-attachments/assets/3a8050ef-5985-4ad8-ad5c-fa8f4db024d4" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/84f0094c-28f1-49b6-a214-fe79cf93f877" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/95c4e0cc-58ce-4b25-8640-7075b1fd7f4b" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/ca9a7c7a-d349-4fb6-b2a7-2fc0050ef077" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/27aee96b-b0db-4700-a734-79f7a8b7f894" />
+<img width="1920" height="1080" alt="113Fwdaawdok" src="https://github.com/user-attachments/assets/94980ee4-c8c5-4550-863b-be9c39d192c9" />
+<img width="1920" height="1080" alt="113Fwdwddaawdok" src="https://github.com/user-attachments/assets/03f9b6fd-2a66-469f-906a-e0ad6bca84b9" />
+<img width="1920" height="1080" alt="113Fwdafefeawdok" src="https://github.com/user-attachments/assets/d4734fb0-c096-41f1-bf95-ab27b143f8ea" />
+<img width="1920" height="1080" alt="113Fwdaawffswedok" src="https://github.com/user-attachments/assets/054d4bd7-4a2e-43a5-81b9-4db4d7062be6" />
+<img width="638" height="957" alt="image" src="https://github.com/user-attachments/assets/aefb2ff2-80c2-4321-b8d1-5291b26335b8" />
+
 
 > 📱 **[Watch the reveal on TikTok](https://www.tiktok.com/@serpentsbyte/video/7606598159921319190)** — First ever FiveM Nostr Bot drop
 
@@ -62,7 +64,7 @@ Traditional FiveM logging is **broken by design**:
 - 🌍 **Decentralized** - Your logs live on Nostr's global relay network
 - 🔐 **Cryptographically Signed** - Every event provably authentic (BIP-340)
 - ⚡ **Lightning Fast** - WebSocket connections, sub-second latency
-- 🎨 **Stunning UI** - AETHER-style admin panel with live statistics
+- 🎨 **RDWE-UI Powered** - Built on Red Dragon Web Engine UI — RDE's own zero-dependency CSS+JS framework with 35+ components, Terminal UI, cyberpunk design tokens
 - 🛡️ **Triple Admin Verification** - ACE permissions + Steam ID + ox_core
 - 📊 **Real-time Stats** - Monitor relay health, success rates, uptime
 - 🔧 **Developer Friendly** - Clean exports, extensive documentation
@@ -388,7 +390,7 @@ privateKey: 'nsec123abc456...'
 ### Stack
 
 - **Server-Side:** Node.js 16+ · `nostr-tools` v2.x · `ws` v8.14.2 · BIP-340 Schnorr signatures
-- **Client-Side:** Lua · HTML5/CSS3/JavaScript · AETHER-inspired UI
+- **Client-Side:** Lua · HTML5/CSS3/JavaScript · [**RDWE-UI**](https://rd-elite.com) — Red Dragon Web Engine UI Framework · Zero-dependency · 35+ components
 
 ### How It Works
 
