@@ -11,7 +11,7 @@ game 'gta5'
 name 'rde_nostr_log'
 author 'RDE | SerpentsByte (Shin)'
 description '🐉 Dezentraler FiveM Log-Bot über Nostr - Unzensierbar, Dezentral, Frei'
-version '1.0.0'
+version '1.1.1'
 
 -- 🎯 Core Dependencies
 dependencies {

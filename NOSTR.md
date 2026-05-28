@@ -68,6 +68,7 @@ Traditional FiveM logging is **broken by design**:
 - 📊 **Real-time Stats** - Monitor relay health, success rates, uptime
 - 🔧 **Developer Friendly** - Clean exports, extensive documentation
 - 🌐 **Multi-language** - EN/DE support, easily extendable
+- 🛡️ **Export Rate Limiting** - Per-resource rate limiting on `postLog` export prevents accidental or malicious relay spam
 
 ---
 
@@ -110,6 +111,7 @@ Traditional FiveM logging is **broken by design**:
 - Auto-Refresh in NUI every 10s uses cached data, not repeated server round-trips
 - NUI relay list now shows ONLINE/OFFLINE status and real relay names (PRIMAL, DAMUS, NOS, SNORT) instead of "LOCAL"
 - DevMode logs show queued pre-init event count
+- **`postLog` export rate limiting**: Per-resource sliding window (10 calls / 5s) — `GetInvokingResource()` identifies the caller, DevMode logs which resource hit the limit
 
 ---
 

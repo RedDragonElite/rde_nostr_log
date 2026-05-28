@@ -791,6 +791,30 @@ onNet('rde_nostr:requestPanelAccess', () => {
     emitNet('rde_nostr:logs', source, state.storedLogs);
 });
 
+
+// ============================================
+// 🛡️ EXPORT RATE LIMITING
+// ============================================
+
+const _rateLimits = new Map(); // resourceName → { count, windowStart }
+const RATE_LIMIT_MAX    = 10;   // max postLog calls per window per resource
+const RATE_LIMIT_WINDOW = 5000; // 5 second sliding window
+
+function checkRateLimit(caller) {
+    const now   = Date.now();
+    const entry = _rateLimits.get(caller) || { count: 0, windowStart: now };
+
+    if (now - entry.windowStart > RATE_LIMIT_WINDOW) {
+        entry.count       = 0;
+        entry.windowStart = now;
+    }
+
+    entry.count++;
+    _rateLimits.set(caller, entry);
+
+    return entry.count <= RATE_LIMIT_MAX;
+}
+
 // ============================================
 // 🎯 EXPORTS
 // ============================================
@@ -798,6 +822,14 @@ onNet('rde_nostr:requestPanelAccess', () => {
 global.exports('postLog', (content, tags = []) => {
     // RDE Standard: guard tags — external scripts may pass null/undefined/non-array
     const safeTags = Array.isArray(tags) ? tags : [];
+
+    // Rate limit per invoking resource — prevents accidental/malicious spam
+    const caller = GetInvokingResource() || 'unknown';
+    if (!checkRateLimit(caller)) {
+        if (Config.DevMode) log(`⚠️ Rate limit hit by resource: ${caller} (max ${RATE_LIMIT_MAX} calls / ${RATE_LIMIT_WINDOW}ms)`, 'warning');
+        return Promise.resolve(false);
+    }
+
     // Returns a Promise that ALWAYS resolves (never rejects)
     return postToNostr(content, safeTags);
 });
