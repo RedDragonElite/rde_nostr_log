@@ -42,9 +42,10 @@ const {
 
 const Config = {
     Nostr: {
-        // ⚠️ Leave empty to auto-generate, or add hex private key (64 chars)
-        // NEVER put nsec in config.lua — JS-only!
-        privateKey: 'YOUR-KEY-HERE', // Your Key coMEs here
+        // 🔐 SECURITY: Private key is loaded from server.cfg ConVar — NOT stored here
+        // Add this to your server.cfg:  set NOSTR_PRIVATE_KEY "nsec1yourkeyhere"
+        // Leave empty string here — key is read at runtime via GetConvar()
+        privateKey: GetConvar('NOSTR_PRIVATE_KEY', ''),
 
         // 🔥 STABLE RELAYS
         relays: [

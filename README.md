@@ -369,18 +369,25 @@ Pick relays close to your server geographically — check [nostr.watch](https://
 
 ## 🔐 Security Best Practices
 
-```javascript
-// Good — environment variable
-privateKey: process.env.NOSTR_PRIVATE_KEY || ''
+### Private Key — store in `server.cfg`, NOT in `server.js`
 
-// Bad — hardcoded in repo
-privateKey: 'nsec123abc456...'
+**Step 1:** Add to your `server.cfg`:
+```cfg
+set NOSTR_PRIVATE_KEY "nsec1yourkeyhere"
 ```
 
-- ⚠️ Never share your nsec/private key
-- ✅ Back it up physically
-- ❌ Don't commit keys to GitHub
-- 🔒 Add `server.js` to `.gitignore` if it contains your key
+**Step 2:** `server.js` reads it automatically at runtime:
+```javascript
+privateKey: GetConvar('NOSTR_PRIVATE_KEY', ''),
+```
+
+**Why this matters:**
+- ✅ Key never appears in source code
+- ✅ Key never accidentally pushed to GitHub
+- ✅ Not visible via F8 console or NUI tools
+- ✅ Only accessible to server owners with `server.cfg` access
+- ❌ Never hardcode your nsec directly in `server.js`
+- ❌ Never commit your key to GitHub
 
 ---
 
