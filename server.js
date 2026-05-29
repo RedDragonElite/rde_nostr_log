@@ -1,9 +1,9 @@
 // ============================================
-// 🐉 RED DRAGON ELITE | NOSTR LOG BOT v1.1.0
+// 🐉 RED DRAGON ELITE | NOSTR LOG BOT v1.2.3
 // FIVEM COMPATIBLE - Using nostr-tools
 // Author: RDE | SerpentsByte & Shin
 // ============================================
-// 🛠️ FIXED v1.1.0:
+// 🛠️ FIXED v1.2.3:
 //   ✅ UnhandledPromiseRejection on player leave — ROOT CAUSE FIXED
 //      → getEventHash / getSignature can throw when nostr-tools builds
 //        the event; all calls now wrapped in try/catch inside postToNostr
@@ -87,7 +87,7 @@ const Config = {
         checkOrder: ['ace', 'steam']
     },
 
-    DevMode: true
+    DevMode: false
 };
 
 // ============================================
@@ -634,83 +634,11 @@ function logPlayerEvent(eventType, player, extraData = {}) {
 // 🎮 FIVEM EVENT HANDLERS
 // ============================================
 
-onNet('playerConnecting', (name, _setKickReason, _deferrals) => {
-    // FIX: capture source synchronously — global.source changes on the next tick
-    const source = global.source;
+// Player events handled exclusively in server/player_activity.lua — no duplicate handlers here
 
-    // FIX: full identifier fallback chain
-    let identifier = 'unknown';
-    try {
-        identifier =
-            GetPlayerIdentifierByType(source, 'steam')   ||
-            GetPlayerIdentifierByType(source, 'license') ||
-            GetPlayerIdentifierByType(source, 'fivem')   ||
-            'unknown';
-    } catch (_) { /* native threw — player already gone */ }
+// Player events handled exclusively in server/player_activity.lua — no duplicate handlers here
 
-    logPlayerEvent('player_connecting', {
-        name:       name || 'Unknown',
-        identifier: identifier
-    });
-});
-
-on('playerJoining', (source) => {
-    // FIX: null-guard on GetPlayerName — native can return null
-    let name = 'Unknown';
-    try { name = GetPlayerName(source) || 'Unknown'; } catch (_) {}
-
-    let identifier = 'unknown';
-    try {
-        identifier =
-            GetPlayerIdentifierByType(source, 'steam')   ||
-            GetPlayerIdentifierByType(source, 'license') ||
-            GetPlayerIdentifierByType(source, 'fivem')   ||
-            'unknown';
-    } catch (_) {}
-
-    let playerCount = 0;
-    try { playerCount = GetNumPlayerIndices(); } catch (_) {}
-
-    logPlayerEvent('player_connected', {
-        name:       name,
-        identifier: identifier
-    }, {
-        playerCount: playerCount
-    });
-});
-
-on('playerDropped', (reason) => {
-    // FIX: capture source IMMEDIATELY — global.source is only valid right now
-    const source = global.source;
-
-    // FIX: GetPlayerName can return null when the player is already removed
-    let name = null;
-    try { name = GetPlayerName(source); } catch (_) {}
-
-    if (!name) {
-        // Player already fully removed from the server — nothing to log
-        if (Config.DevMode) {
-            log(`⚠️ playerDropped: source ${source} already removed, skipping log`, 'warning');
-        }
-        return;
-    }
-
-    let identifier = 'unknown';
-    try {
-        identifier =
-            GetPlayerIdentifierByType(source, 'steam')   ||
-            GetPlayerIdentifierByType(source, 'license') ||
-            GetPlayerIdentifierByType(source, 'fivem')   ||
-            'unknown';
-    } catch (_) {}
-
-    logPlayerEvent('player_disconnected', {
-        name:       name,
-        identifier: identifier
-    }, {
-        reason: reason || 'Unknown'
-    });
-});
+// Player events handled exclusively in server/player_activity.lua — no duplicate handlers here
 
 // ============================================
 // 📡 NETWORK EVENTS (Admin)
@@ -852,7 +780,7 @@ global.exports('getBotNpub',   () => state.npub);
 // ============================================
 
 setImmediate(() => {
-    log('🐉 RED DRAGON ELITE | NOSTR LOG BOT v1.1.0', 'info');
+    log('🐉 RED DRAGON ELITE | NOSTR LOG BOT v1.2.3', 'info');
     log('⚡ FIVEM COMPATIBLE - Using nostr-tools',    'info');
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',  'info');
 

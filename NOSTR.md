@@ -3,7 +3,7 @@
      #RedDragonElite #FiveM #Nostr #web3 #log #nostress
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-1.1.1-red?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-1.2.3-red?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-RDE%20Black%20Flag-black?style=for-the-badge)
 ![FiveM](https://img.shields.io/badge/FiveM-Compatible-blue?style=for-the-badge)
 ![Nostr](https://img.shields.io/badge/Nostr-Decentralized-purple?style=for-the-badge)
@@ -74,7 +74,7 @@ Traditional FiveM logging is **broken by design**:
 
 ## 📦 Changelog
 
-### v1.1.1 — Stability & Compatibility Update
+### v1.2.3 — Stability & Compatibility Update
 > *"No more promise rejections, no more OFFLINE panel, no more crashes on disconnect."*
 
 **🔴 Critical Fixes**
@@ -217,7 +217,7 @@ Browse [Nostr.watch](https://nostr.watch/) for more relay stats.
 ### Expected Console Output
 
 ```
-[RDE-NOSTR] 🐉 RED DRAGON ELITE | NOSTR LOG BOT v1.1.1
+[RDE-NOSTR] 🐉 RED DRAGON ELITE | NOSTR LOG BOT v1.2.3
 [RDE-NOSTR] ⚡ FIVEM COMPATIBLE - Using nostr-tools
 [RDE-NOSTR] 🤖 Initializing Nostr Bot...
 [RDE-NOSTR] ✅ Bot Identity loaded
@@ -322,15 +322,15 @@ Then delete `node_modules` and run `yarn install` again.
 
 ### "Bot not initialized yet" in console on startup
 
-This is normal in v1.0.x. **Fixed in v1.1.1** — events are now queued and sent once relays connect.
+This is normal in v1.0.x. **Fixed in v1.2.3** — events are now queued and sent once relays connect.
 
 ### Panel shows STATUS: OFFLINE / 0/0 relays
 
-**Fixed in v1.1.1.** If you still see this after updating, clear your browser cache or do a hard refresh (Ctrl+F5) on the NUI.
+**Fixed in v1.2.3.** If you still see this after updating, clear your browser cache or do a hard refresh (Ctrl+F5) on the NUI.
 
 ### "UnhandledPromiseRejection" on player disconnect
 
-**Fixed in v1.1.1.** The root cause was the nostr-tools v2.x API change. Update to v1.1.1.
+**Fixed in v1.2.3.** The root cause was the nostr-tools v2.x API change. Update to v1.2.3.
 
 ### No relays connect
 
@@ -524,7 +524,7 @@ privateKey: GetConvar('NOSTR_PRIVATE_KEY', ''),
 
 **What Node.js version do I need?** Node 16+ (comes with FiveM — you don't need to install anything).
 
-**nostr-tools v1 or v2?** v2.x — `package.json` in v1.1.1 is pinned to `^2.0.0`.
+**nostr-tools v1 or v2?** v2.x — `package.json` in v1.2.3 is pinned to `^2.0.0`.
 
 **Can I use this with ESX/QBCore/ox_core?** Yes — framework-agnostic.
 
