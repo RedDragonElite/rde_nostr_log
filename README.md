@@ -3,7 +3,7 @@
      #RedDragonElite #FiveM #Nostr #web3 #log #nostress
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-1.2.3-red?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-1.2.4-red?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-RDE%20Black%20Flag-black?style=for-the-badge)
 ![FiveM](https://img.shields.io/badge/FiveM-Compatible-blue?style=for-the-badge)
 ![Nostr](https://img.shields.io/badge/Nostr-Decentralized-purple?style=for-the-badge)
@@ -73,6 +73,20 @@ Traditional FiveM logging is **broken by design**:
 ---
 
 ## 📦 Changelog
+
+### v1.2.4 — Hotfix: ox_lib Init
+> *"One missing line. One nil global. Never again."*
+
+**🔴 Critical Fix**
+- **`lib` was nil on client — FIXED** — `@ox_lib/init.lua` was missing from `shared_scripts` in `fxmanifest.lua`, causing `attempt to index a nil value (global 'lib')` on all `lib.notify()` calls. Bot logged correctly server-side but all client-side notifications were broken.
+
+**🟡 Manifest Cleanup**
+- `ox_lib` added to `dependencies {}` — load order is now explicitly declared
+- `version` bumped to `1.2.4`
+
+**Migration:** Drop-in replacement. No config changes required.
+
+---
 
 ### v1.2.3 — Architecture Cleanup
 > *"One source of truth. No duplicates. No key leaks."*
@@ -231,7 +245,7 @@ Browse [Nostr.watch](https://nostr.watch/) for more relay stats.
 ### Expected Console Output
 
 ```
-[RDE-NOSTR] 🐉 RED DRAGON ELITE | NOSTR LOG BOT v1.2.3
+[RDE-NOSTR] 🐉 RED DRAGON ELITE | NOSTR LOG BOT v1.2.4
 [RDE-NOSTR] ⚡ FIVEM COMPATIBLE - Using nostr-tools
 [RDE-NOSTR] 🤖 Initializing Nostr Bot...
 [RDE-NOSTR] ✅ Bot Identity loaded
@@ -352,12 +366,16 @@ This is normal in v1.0.x. **Fixed in v1.2.3** — events are now queued and sent
 - Try different relays (some hosting providers block certain domains)
 - Check `[yarn]` errors in console — `node_modules` may not be installed
 
-### Admin panel won't open
+### "Admin panel won't open"
 
 1. Check your Steam ID in `server.js`
 2. Try `/nostrpanel` command
 3. Check F8 console for errors
-4. Make sure `ox_lib` is installed
+4. Make sure `ox_lib` is installed and loads **before** `rde_nostr_log` in `server.cfg`
+
+### `attempt to index a nil value (global 'lib')` on client
+
+You are on v1.2.3 or earlier. **Fixed in v1.2.4** — `@ox_lib/init.lua` was missing from `shared_scripts` in `fxmanifest.lua`. Update to v1.2.4.
 
 ### "Relay REJECTED: invalid signature"
 

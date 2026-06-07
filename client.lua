@@ -222,7 +222,7 @@ CreateThread(function()
     end
     if Config.DevMode then
         local kb = Config.UI and Config.UI.keybind or 'F9'
-        print('^2[RDE-NOSTR] Client v1.1.0 initialized^0')
+        print('^2[RDE-NOSTR] Client v1.2.4 initialized^0')
         print('^5[RDE-NOSTR] Press ' .. kb .. ' to open admin panel^0')
         print('^5[RDE-NOSTR] Or use command: /nostrpanel^0')
     end

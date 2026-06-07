@@ -11,15 +11,17 @@ game 'gta5'
 name 'rde_nostr_log'
 author 'RDE | SerpentsByte (Shin)'
 description '🐉 Dezentraler FiveM Log-Bot über Nostr - Unzensierbar, Dezentral, Frei'
-version '1.1.1'
+version '1.2.4'
 
 -- 🎯 Core Dependencies
 dependencies {
-    'ox_core'
+    'ox_core',
+    'ox_lib'
 }
 
 -- 🌍 Shared Configuration (both client & server)
 shared_scripts {
+    '@ox_lib/init.lua',
     'config.lua'
 }
 
